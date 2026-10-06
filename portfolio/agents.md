@@ -1,6 +1,6 @@
 # Idea
 
-Have a threejs portfolio, inspired by https://bruno-simon.com/
+Have a Babylon.js portfolio, inspired by https://bruno-simon.com/
 
 My idea is to have a bike bike (Harley style) go over a road, seen from a top view
 and the CV contents appear next to the road on the ground.
