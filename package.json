@@ -1,0 +1,11 @@
+{
+  "name": "sofi-websites",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:portfolio": "npm run dev --workspace=@sofi/portfolio",
+    "build:portfolio": "npm run build --workspace=@sofi/portfolio"
+  }
+}

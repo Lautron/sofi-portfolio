@@ -1,0 +1,70 @@
+{
+  "edition": "2.0",
+  "approved_artworks": [
+    {
+      "mark": "primary-logotype",
+      "active_master": "01-logos/png/primary-logotype--enhanced-master.png",
+      "dimensions_px": [
+        1604,
+        981
+      ],
+      "sha256": "83471cd7943dc9d75e83a2aaffa44cb30e8c911917de938205de8f612053cec6",
+      "approved_generation_sha256": "83471cd7943dc9d75e83a2aaffa44cb30e8c911917de938205de8f612053cec6",
+      "approved_generation_filename": "exec-14f23a51-e420-433a-82a2-37a8381ebef2.png",
+      "user_approval": "Primary: \"The first one you generated works.\" Other three: \"Those look good. Update assets\".",
+      "approval_date": "2026-10-06",
+      "method": "Built-in image generation enhancement; master bytes copied without color or edge edits.",
+      "limits": "User-approved reconstruction, not pixel-exact source restoration; original source provided. Known edge coloration/distress retained as approved.",
+      "visible_high_chroma_pixels": 29056
+    },
+    {
+      "mark": "symbol",
+      "active_master": "01-logos/png/symbol--enhanced-master.png",
+      "dimensions_px": [
+        1060,
+        1484
+      ],
+      "sha256": "8477b6409d268ee15f161ad387bcf6d657c6db662a19f26f8f01d8d1e0eaa39d",
+      "approved_generation_sha256": "8477b6409d268ee15f161ad387bcf6d657c6db662a19f26f8f01d8d1e0eaa39d",
+      "approved_generation_filename": "exec-f9b66bd4-4490-40b4-8131-aa31d5cd419c.png",
+      "user_approval": "Primary: \"The first one you generated works.\" Other three: \"Those look good. Update assets\".",
+      "approval_date": "2026-10-06",
+      "method": "Built-in image generation enhancement; master bytes copied without color or edge edits.",
+      "limits": "User-approved reconstruction, not pixel-exact source restoration; original source provided. Known edge coloration/distress retained as approved.",
+      "visible_high_chroma_pixels": 12251
+    },
+    {
+      "mark": "secondary-emblem",
+      "active_master": "01-logos/png/secondary-emblem--enhanced-master.png",
+      "dimensions_px": [
+        1234,
+        1274
+      ],
+      "sha256": "aeb6aee0af8fadf38196f601acb426ede144141215f1c218224eff579e93ee14",
+      "approved_generation_sha256": "aeb6aee0af8fadf38196f601acb426ede144141215f1c218224eff579e93ee14",
+      "approved_generation_filename": "exec-b83afe43-7303-40ce-8c04-67b7cf468e7e.png",
+      "user_approval": "Primary: \"The first one you generated works.\" Other three: \"Those look good. Update assets\".",
+      "approval_date": "2026-10-06",
+      "method": "Built-in image generation enhancement; master bytes copied without color or edge edits.",
+      "limits": "User-approved reconstruction, not pixel-exact source restoration; original source provided. Known edge coloration/distress retained as approved.",
+      "visible_high_chroma_pixels": 18770
+    },
+    {
+      "mark": "dq-monogram",
+      "active_master": "01-logos/png/dq-monogram--enhanced-master.png",
+      "dimensions_px": [
+        1089,
+        1444
+      ],
+      "sha256": "590a3080a15d5d2f7ee7732538199f7d6bc8a27f0c574ac43113a0f846926ac8",
+      "approved_generation_sha256": "590a3080a15d5d2f7ee7732538199f7d6bc8a27f0c574ac43113a0f846926ac8",
+      "approved_generation_filename": "exec-481ccb41-a837-447a-b895-00258b0fb4b2.png",
+      "user_approval": "Primary: \"The first one you generated works.\" Other three: \"Those look good. Update assets\".",
+      "approval_date": "2026-10-06",
+      "method": "Built-in image generation enhancement; master bytes copied without color or edge edits.",
+      "limits": "User-approved reconstruction, not pixel-exact source restoration; original source provided. Known edge coloration/distress retained as approved.",
+      "visible_high_chroma_pixels": 1682
+    }
+  ],
+  "untouched": "Palette, typography declarations, six motifs, standalone source signature and solid backgrounds remain from edition 1.0."
+}

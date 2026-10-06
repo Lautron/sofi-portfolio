@@ -1,0 +1,47 @@
+[
+  {
+    "item": "Editable vector logo and icon masters",
+    "status": "unresolved",
+    "reason": "Only flattened raster references supplied. Embedded-raster SVGs preserve exports but are not path-based logo artwork."
+  },
+  {
+    "item": "Source logo foreground colors and alpha",
+    "status": "approximate",
+    "reason": "Dark background is baked in. Matte estimated from crop borders; faint marks at or below the local near-black threshold may be lost. No recoloring to token values."
+  },
+  {
+    "item": "Font identity of rendered wordmark, samples and signature",
+    "status": "unverified",
+    "reason": "Uncial Antiqua and Inter are exact specified names; references do not establish actual glyph construction, weight, style, modifications or signature font. Reckless Neue is explicitly provisional in JSON."
+  },
+  {
+    "item": "Font binaries and licensing",
+    "status": "not-included",
+    "reason": "No font files or licenses supplied; no font binaries fetched or bundled."
+  },
+  {
+    "item": "Clear-space unit, minimum logo size and UI spacing scale",
+    "status": "unresolved",
+    "reason": "Source requires clear space and preserved proportions but gives no numeric geometry or spacing tokens."
+  },
+  {
+    "item": "Seamless patterns and isolated grunge textures",
+    "status": "unresolved",
+    "reason": "Visible scratch/grain fields overlap imagery and layouts; no clean repeat tile or isolated texture master supplied. No new pattern invented."
+  },
+  {
+    "item": "Standalone portraits, game art, merchandise and contact icons",
+    "status": "not-reconstructed",
+    "reason": "These appear as embedded examples or mockups, not clean full-resolution production files. Source boards included for reference."
+  },
+  {
+    "item": "Print, embroidery, large-format and tiny favicon suitability",
+    "status": "unresolved",
+    "reason": "Low native resolution and distressed detail limit output. Enlarged files add no detail; exact path masters and physical proofs are required for those uses."
+  },
+  {
+    "item": "Approved enhancement differences and residual edge colors",
+    "status": "known-and-approved",
+    "reason": "Enhanced masters reconstruct source contours and distress; primary signature is heavier. Compact marks include colored/white edge artifacts. User approved the displayed results; package preserves exact approved bytes. No post-approval cleanup or palette-certification claim."
+  }
+]

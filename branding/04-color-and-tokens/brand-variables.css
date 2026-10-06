@@ -1,0 +1,12 @@
+/* Exact Dark Queen palette; specified family names only. Supply licensed fonts separately. */
+:root {
+  --dq-blood-red: #8B1E24;
+  --dq-void: #0B0B0B;
+  --dq-charcoal: #1F1F1F;
+  --dq-stone: #E8E4DE;
+  --dq-dusty-rose: #9A6B7A;
+  --dq-moss: #3A3E3A;
+  --dq-font-display: "Uncial Antiqua";
+  --dq-font-body: "Inter";
+  /* Reckless Neue is provisional and deliberately not assigned as an active token. */
+}

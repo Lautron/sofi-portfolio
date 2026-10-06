@@ -1,0 +1,119 @@
+{
+  "palette": [
+    {
+      "name": "Blood Red",
+      "hex": "#8B1E24",
+      "role": "Passion, creativity, emphasis and signature accents",
+      "rgb": [
+        139,
+        30,
+        36
+      ],
+      "hsl": [
+        356.697,
+        64.497,
+        33.137
+      ],
+      "rgb_css": "rgb(139, 30, 36)",
+      "hsl_css": "hsl(356.697 64.497% 33.137%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    },
+    {
+      "name": "Void",
+      "hex": "#0B0B0B",
+      "role": "Primary background, depth and focus",
+      "rgb": [
+        11,
+        11,
+        11
+      ],
+      "hsl": [
+        0.0,
+        0.0,
+        4.314
+      ],
+      "rgb_css": "rgb(11, 11, 11)",
+      "hsl_css": "hsl(0 0% 4.314%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    },
+    {
+      "name": "Charcoal",
+      "hex": "#1F1F1F",
+      "role": "Secondary dark neutral and visual balance",
+      "rgb": [
+        31,
+        31,
+        31
+      ],
+      "hsl": [
+        0.0,
+        0.0,
+        12.157
+      ],
+      "rgb_css": "rgb(31, 31, 31)",
+      "hsl_css": "hsl(0 0% 12.157%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    },
+    {
+      "name": "Stone",
+      "hex": "#E8E4DE",
+      "role": "Primary light contrast and logo/text color",
+      "rgb": [
+        232,
+        228,
+        222
+      ],
+      "hsl": [
+        36.0,
+        17.857,
+        89.02
+      ],
+      "rgb_css": "rgb(232, 228, 222)",
+      "hsl_css": "hsl(36 17.857% 89.02%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    },
+    {
+      "name": "Dusty Rose",
+      "hex": "#9A6B7A",
+      "role": "Muted personal accent",
+      "rgb": [
+        154,
+        107,
+        122
+      ],
+      "hsl": [
+        340.851,
+        18.876,
+        51.176
+      ],
+      "rgb_css": "rgb(154, 107, 122)",
+      "hsl_css": "hsl(340.851 18.876% 51.176%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    },
+    {
+      "name": "Moss",
+      "hex": "#3A3E3A",
+      "role": "Muted environmental and natural accent",
+      "rgb": [
+        58,
+        62,
+        58
+      ],
+      "hsl": [
+        120.0,
+        3.333,
+        23.529
+      ],
+      "rgb_css": "rgb(58, 62, 58)",
+      "hsl_css": "hsl(120 3.333% 23.529%)",
+      "source": "brand-specification.json / color_palette",
+      "color_space": "sRGB"
+    }
+  ],
+  "note": "These are specified tokens, not sampled artwork or photographic colors."
+}

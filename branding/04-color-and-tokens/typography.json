@@ -1,0 +1,38 @@
+{
+  "specified_families": [
+    {
+      "family": "Uncial Antiqua",
+      "role": "Primary wordmark and selected display headlines",
+      "qualities": [
+        "Expressive",
+        "Uncial-inspired",
+        "Distinctive"
+      ],
+      "usage": "Use for short identity statements rather than body copy or dense technical information."
+    },
+    {
+      "family": "Inter",
+      "role": "Body text, navigation, UI and technical content",
+      "qualities": [
+        "Clean",
+        "Readable",
+        "Modern"
+      ],
+      "usage": "Use for project descriptions, blog articles, skills, contact information and QA documentation."
+    },
+    {
+      "family": "Reckless Neue",
+      "role": "Optional editorial accent",
+      "status": "Provisional font choice; exact family and style require confirmation.",
+      "usage": "Do not treat the font name as a verified handwritten typeface. Handwritten signatures and notes are separate graphic treatments."
+    }
+  ],
+  "verification": {
+    "Uncial Antiqua": "Exact family name in board and JSON; actual rendered font, weight and modifications unverified.",
+    "Inter": "Exact family name in board and JSON; actual rendered style/weight unverified.",
+    "Reckless Neue": "JSON explicitly provisional. Image handwritten sample does not verify this family.",
+    "Sofía Arauz signature": "Graphic preserved; font identity unknown."
+  },
+  "font_files_included": false,
+  "documentation_font": "Helvetica, used only in the PDF and not added to brand system"
+}

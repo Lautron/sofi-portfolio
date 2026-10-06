@@ -1,0 +1,133 @@
+{
+  "$extensions": {
+    "darkqueen": {
+      "formatVersion": "1.0",
+      "source": "06-source-reference/brand-specification.json"
+    }
+  },
+  "$description": "Dark Queen. Exact color tokens from supplied JSON. No invented spacing, weights, or logo geometry.",
+  "color": {
+    "blood-red": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.5450980392156862,
+          0.11764705882352941,
+          0.1411764705882353
+        ],
+        "alpha": 1,
+        "hex": "#8B1E24"
+      },
+      "$description": "Passion, creativity, emphasis and signature accents"
+    },
+    "void": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.043137254901960784,
+          0.043137254901960784,
+          0.043137254901960784
+        ],
+        "alpha": 1,
+        "hex": "#0B0B0B"
+      },
+      "$description": "Primary background, depth and focus"
+    },
+    "charcoal": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.12156862745098039,
+          0.12156862745098039,
+          0.12156862745098039
+        ],
+        "alpha": 1,
+        "hex": "#1F1F1F"
+      },
+      "$description": "Secondary dark neutral and visual balance"
+    },
+    "stone": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.9098039215686274,
+          0.8941176470588236,
+          0.8705882352941177
+        ],
+        "alpha": 1,
+        "hex": "#E8E4DE"
+      },
+      "$description": "Primary light contrast and logo/text color"
+    },
+    "dusty-rose": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.6039215686274509,
+          0.4196078431372549,
+          0.47843137254901963
+        ],
+        "alpha": 1,
+        "hex": "#9A6B7A"
+      },
+      "$description": "Muted personal accent"
+    },
+    "moss": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.22745098039215686,
+          0.24313725490196078,
+          0.22745098039215686
+        ],
+        "alpha": 1,
+        "hex": "#3A3E3A"
+      },
+      "$description": "Muted environmental and natural accent"
+    }
+  },
+  "typography": {
+    "display": {
+      "$type": "fontFamily",
+      "$value": "Uncial Antiqua",
+      "$description": "Primary wordmark and selected display headlines. Name specified in supplied JSON; rendered typeface and exact weight/style not independently verified.",
+      "$extensions": {
+        "darkqueen": {
+          "verifiedSourceName": true,
+          "renderedTypefaceVerified": false,
+          "fontFileIncluded": false
+        }
+      }
+    },
+    "body": {
+      "$type": "fontFamily",
+      "$value": "Inter",
+      "$description": "Body text, navigation, UI and technical content. Name specified in supplied JSON; rendered typeface and exact weight/style not independently verified.",
+      "$extensions": {
+        "darkqueen": {
+          "verifiedSourceName": true,
+          "renderedTypefaceVerified": false,
+          "fontFileIncluded": false
+        }
+      }
+    },
+    "editorial-provisional": {
+      "$type": "fontFamily",
+      "$value": "Reckless Neue",
+      "$description": "Optional editorial accent. Provisional font choice; exact family and style require confirmation.",
+      "$extensions": {
+        "darkqueen": {
+          "verifiedSourceName": false,
+          "renderedTypefaceVerified": false,
+          "fontFileIncluded": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,299 @@
+[
+  {
+    "name": "primary-logotype",
+    "source_bounds_xyxy": [
+      660,
+      60,
+      892,
+      202
+    ],
+    "native_dimensions": [
+      232,
+      142
+    ],
+    "background_estimate_rgb": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 1.0953,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0293,
+    "max_absolute_rgb_error": 7.0,
+    "transparent_pixels": 24706,
+    "partial_alpha_pixels": 1133,
+    "opaque_pixels": 7105,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "symbol",
+    "source_bounds_xyxy": [
+      918,
+      50,
+      1028,
+      204
+    ],
+    "native_dimensions": [
+      110,
+      154
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 11.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.6958,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0309,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 15055,
+    "partial_alpha_pixels": 529,
+    "opaque_pixels": 1356,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "secondary-emblem",
+    "source_bounds_xyxy": [
+      1062,
+      65,
+      1186,
+      193
+    ],
+    "native_dimensions": [
+      124,
+      128
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.8517,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0378,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 12825,
+    "partial_alpha_pixels": 1014,
+    "opaque_pixels": 2033,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "dq-monogram",
+    "source_bounds_xyxy": [
+      1213,
+      70,
+      1308,
+      196
+    ],
+    "native_dimensions": [
+      95,
+      126
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 11.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.729,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0148,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 9094,
+    "partial_alpha_pixels": 456,
+    "opaque_pixels": 2420,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "sofia-arauz-signature",
+    "source_bounds_xyxy": [
+      735,
+      164,
+      843,
+      201
+    ],
+    "native_dimensions": [
+      108,
+      37
+    ],
+    "background_estimate_rgb": [
+      7.0,
+      8.0,
+      7.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 2.249,
+    "mean_absolute_rgb_error_on_retained_pixels": 2.9394,
+    "max_absolute_rgb_error": 196.0,
+    "transparent_pixels": 3287,
+    "partial_alpha_pixels": 99,
+    "opaque_pixels": 610,
+    "status": "Approximate matte and red-channel isolation; nearby wordmark fragment excluded."
+  },
+  {
+    "name": "exploration-star",
+    "source_bounds_xyxy": [
+      681,
+      617,
+      739,
+      669
+    ],
+    "native_dimensions": [
+      58,
+      52
+    ],
+    "background_estimate_rgb": [
+      7.0,
+      7.0,
+      7.0
+    ],
+    "matte_zero_threshold_max_channel": 10.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.7366,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0343,
+    "max_absolute_rgb_error": 7.0,
+    "transparent_pixels": 2659,
+    "partial_alpha_pixels": 110,
+    "opaque_pixels": 247,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "creativity-butterfly",
+    "source_bounds_xyxy": [
+      785,
+      617,
+      841,
+      669
+    ],
+    "native_dimensions": [
+      56,
+      52
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      7.0,
+      7.0
+    ],
+    "matte_zero_threshold_max_channel": 11.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.9908,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0278,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 1990,
+    "partial_alpha_pixels": 212,
+    "opaque_pixels": 710,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "testing-flame",
+    "source_bounds_xyxy": [
+      881,
+      617,
+      934,
+      669
+    ],
+    "native_dimensions": [
+      53,
+      52
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.8732,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.014,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 2085,
+    "partial_alpha_pixels": 98,
+    "opaque_pixels": 573,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "3d-worlds-blocks",
+    "source_bounds_xyxy": [
+      983,
+      617,
+      1040,
+      669
+    ],
+    "native_dimensions": [
+      57,
+      52
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.9003,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0406,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 2507,
+    "partial_alpha_pixels": 223,
+    "opaque_pixels": 234,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "growth-thorns",
+    "source_bounds_xyxy": [
+      1080,
+      617,
+      1189,
+      669
+    ],
+    "native_dimensions": [
+      109,
+      52
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 11.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.8051,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0345,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 5110,
+    "partial_alpha_pixels": 211,
+    "opaque_pixels": 347,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  },
+  {
+    "name": "details-skull",
+    "source_bounds_xyxy": [
+      1220,
+      617,
+      1270,
+      669
+    ],
+    "native_dimensions": [
+      50,
+      52
+    ],
+    "background_estimate_rgb": [
+      8.0,
+      8.0,
+      8.0
+    ],
+    "matte_zero_threshold_max_channel": 12.0,
+    "matte_opaque_threshold_max_channel": 40,
+    "mean_absolute_rgb_error_on_estimated_source_background": 0.88,
+    "mean_absolute_rgb_error_on_retained_pixels": 0.0154,
+    "max_absolute_rgb_error": 8.0,
+    "transparent_pixels": 1739,
+    "partial_alpha_pixels": 134,
+    "opaque_pixels": 727,
+    "status": "Approximate background separation; original crop supplied for exact reference."
+  }
+]

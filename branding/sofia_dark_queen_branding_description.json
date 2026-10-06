@@ -1,0 +1,366 @@
+{
+  "document": {
+    "type": "brand_identity_specification",
+    "version": "1.0",
+    "subject": "Dark Queen / Sofía Arauz",
+    "purpose": "Define a reusable personal brand for portfolio websites, blogs, professional materials and social channels."
+  },
+  "brand_identity": {
+    "primary_name": "Dark Queen",
+    "personal_name": "Sofía Arauz",
+    "social_handle": "darkqueen.exe",
+    "name_usage": {
+      "creative_identity": "Use Dark Queen as the creative brand name.",
+      "professional_identity": "Keep Sofía Arauz clearly visible in introductions, contact information and professional materials.",
+      "social_identity": "Use darkqueen.exe as the social handle and digital signature."
+    },
+    "professional_positioning": [
+      "Game QA",
+      "3D Environment Art"
+    ],
+    "core_message": "A dark, expressive personal brand combining game testing, 3D world-building, alternative fashion and gothic visual culture.",
+    "audience": [
+      "Game studios and recruiters",
+      "Indie game teams",
+      "Creative collaborators",
+      "Readers interested in game testing, environment art and game development"
+    ],
+    "brand_personality": [
+      "alternative",
+      "confident",
+      "artistic",
+      "technical",
+      "immersive",
+      "detail-conscious"
+    ],
+    "brand_pillars": {
+      "testing": "Careful observation, clear reporting and attention to player experience.",
+      "world_building": "Intentional environments, atmosphere and visual storytelling.",
+      "personal_expression": "An alternative creative identity grounded in personal style.",
+      "detail": "Deliberate choices in both technical work and visual craft."
+    }
+  },
+  "messaging": {
+    "primary_statement": "I test worlds and build them too.",
+    "short_statement": "Worlds with intention.",
+    "positioning_copy": "Game QA and 3D Environment Art with a focus on detail, atmosphere and player experience.",
+    "supporting_copy_examples": [
+      "Creating better worlds, one detail at a time.",
+      "Same games. Different worlds.",
+      "Games. Worlds. Tests. Details. Always.",
+      "Games. People. Places. Ideas. Me.",
+      "Better worlds through details."
+    ],
+    "voice": [
+      "Confident and personal",
+      "Specific about work and skills",
+      "Expressive without sacrificing clarity",
+      "Direct and detail-conscious"
+    ],
+    "writing_rules": [
+      "Use sentence case for interface copy.",
+      "Use clear action labels such as View work and About me.",
+      "Support expressive headlines with concrete descriptions of the work.",
+      "Choose one main statement per application rather than using every supporting line together."
+    ]
+  },
+  "visual_direction": {
+    "style": [
+      "dark gothic",
+      "alternative",
+      "editorial",
+      "grunge",
+      "romantic",
+      "game-industry oriented"
+    ],
+    "mood": [
+      "moody",
+      "rebellious",
+      "expressive",
+      "mysterious",
+      "creative",
+      "detail-focused"
+    ],
+    "material_and_texture_cues": [
+      "Distressed dark surfaces",
+      "Scratched red accents",
+      "Charcoal grain",
+      "Aged paper and stone neutrals",
+      "Dark photography with selective red emphasis"
+    ],
+    "design_principle": "Pair expressive gothic identity elements with clean, readable professional content. Texture and ornament support the identity while text and work samples remain legible."
+  },
+  "color_palette": [
+    {
+      "name": "Blood Red",
+      "hex": "#8B1E24",
+      "role": "Passion, creativity, emphasis and signature accents"
+    },
+    {
+      "name": "Void",
+      "hex": "#0B0B0B",
+      "role": "Primary background, depth and focus"
+    },
+    {
+      "name": "Charcoal",
+      "hex": "#1F1F1F",
+      "role": "Secondary dark neutral and visual balance"
+    },
+    {
+      "name": "Stone",
+      "hex": "#E8E4DE",
+      "role": "Primary light contrast and logo/text color"
+    },
+    {
+      "name": "Dusty Rose",
+      "hex": "#9A6B7A",
+      "role": "Muted personal accent"
+    },
+    {
+      "name": "Moss",
+      "hex": "#3A3E3A",
+      "role": "Muted environmental and natural accent"
+    }
+  ],
+  "color_usage": {
+    "primary_background": "Void (#0B0B0B)",
+    "secondary_background": "Charcoal (#1F1F1F)",
+    "primary_text_and_light_logo": "Stone (#E8E4DE)",
+    "signature_accent": "Blood Red (#8B1E24)",
+    "secondary_accents": [
+      "Dusty Rose (#9A6B7A)",
+      "Moss (#3A3E3A)"
+    ],
+    "rules": [
+      "Let dark neutrals dominate, with stone text and restrained red accents.",
+      "Use dusty rose for softer personal accents and moss for environmental references.",
+      "Avoid equal visual emphasis across all six colors.",
+      "Choose readable text/background combinations; treat red and muted accents primarily as graphic colors."
+    ]
+  },
+  "typography": [
+    {
+      "family": "Uncial Antiqua",
+      "role": "Primary wordmark and selected display headlines",
+      "qualities": [
+        "Expressive",
+        "Uncial-inspired",
+        "Distinctive"
+      ],
+      "usage": "Use for short identity statements rather than body copy or dense technical information."
+    },
+    {
+      "family": "Inter",
+      "role": "Body text, navigation, UI and technical content",
+      "qualities": [
+        "Clean",
+        "Readable",
+        "Modern"
+      ],
+      "usage": "Use for project descriptions, blog articles, skills, contact information and QA documentation."
+    },
+    {
+      "family": "Reckless Neue",
+      "role": "Optional editorial accent",
+      "status": "Provisional font choice; exact family and style require confirmation.",
+      "usage": "Do not treat the font name as a verified handwritten typeface. Handwritten signatures and notes are separate graphic treatments."
+    }
+  ],
+  "logo_system": {
+    "primary_logotype": {
+      "description": "A stone/off-white gothic Dark Queen wordmark paired with a red handwritten Sofía Arauz signature.",
+      "role": "Introduce the complete creative and personal identity.",
+      "uses": [
+        "Portfolio header",
+        "Brand introductions",
+        "Professional and promotional materials"
+      ]
+    },
+    "symbol": {
+      "description": "A narrow four-pointed star or cross-like symbol with hand-drawn horizontal scratch lines.",
+      "role": "Compact recognition mark.",
+      "uses": [
+        "Favicon",
+        "Avatar",
+        "Small brand signatures"
+      ]
+    },
+    "secondary_mark": {
+      "description": "An angular, symmetrical star/compass-like geometric emblem with thin distressed lines.",
+      "role": "Supporting graphic emblem.",
+      "uses": [
+        "Cover graphics",
+        "Background accents",
+        "Merchandise"
+      ]
+    },
+    "monogram": {
+      "description": "Interlocking gothic D and Q letterforms with a small four-pointed star beneath.",
+      "role": "Compact typographic alternative.",
+      "uses": [
+        "Small identity placements",
+        "Profile graphics",
+        "Merchandise"
+      ]
+    },
+    "usage_rules": [
+      "Use the primary logotype when the audience needs to learn the brand name.",
+      "Use one main identity mark per placement.",
+      "Preserve proportions and leave clear space around each mark.",
+      "Use simplified or compact marks where the full logotype would be too small to read.",
+      "Keep red signatures and distressed details subordinate to the wordmark."
+    ]
+  },
+  "brand_elements": [
+    {
+      "theme": "Exploration",
+      "motif": "four-pointed star",
+      "role": "Supporting decorative motif"
+    },
+    {
+      "theme": "Creativity",
+      "motif": "butterfly",
+      "role": "Supporting decorative motif"
+    },
+    {
+      "theme": "Testing",
+      "motif": "flame",
+      "role": "Supporting decorative motif"
+    },
+    {
+      "theme": "3D Worlds",
+      "motif": "small modular pixel/block cluster",
+      "role": "Supporting decorative motif"
+    },
+    {
+      "theme": "Growth",
+      "motif": "thorn or barbed branch",
+      "role": "Supporting decorative motif"
+    },
+    {
+      "theme": "Details",
+      "motif": "skull",
+      "role": "Supporting decorative motif"
+    }
+  ],
+  "graphic_language": {
+    "motifs": [
+      "Four-pointed stars",
+      "Scratch marks",
+      "Cross-like shapes",
+      "Thorn lines",
+      "Handwritten notes",
+      "Distressed geometric emblems"
+    ],
+    "treatment": "Combine thin distressed linework, selective red marks and dark textured fields with a clear typographic hierarchy.",
+    "restraint": "Use a small selection of motifs in each application. Keep detailed ornament away from body text and interface controls.",
+    "relationship_to_content": "Motifs express the creative identity; written labels communicate navigation, skills and project categories."
+  },
+  "imagery": {
+    "subjects": [
+      "Personal portraits and alternative styling",
+      "Motorcycle culture and details",
+      "Urban and industrial surroundings",
+      "Atmospheric game environments",
+      "3D environments, props and development work"
+    ],
+    "photographic_direction": "Dark, expressive photography with strong contrast, retained shadow detail and selective red emphasis.",
+    "treatments": [
+      "Black-and-red contrast",
+      "Restrained grain or distressed overlays",
+      "Occasional hand-drawn scratch graphics"
+    ],
+    "selection_rules": [
+      "Use portraits to introduce the person behind the brand.",
+      "Use environment art and game captures as evidence of the work.",
+      "Use lifestyle references selectively to give context to the creative identity.",
+      "Preserve important visual details in artwork and screenshots rather than applying a uniform dark filter."
+    ]
+  },
+  "layout_and_hierarchy": {
+    "alignment": "Mostly left-aligned content within a disciplined grid.",
+    "hierarchy": "Give the brand name or a concise identity statement a clear focal role. Follow with professional positioning, work and contact information.",
+    "contrast": "Balance oversized expressive type or imagery with quiet, readable information blocks.",
+    "spacing": "Use generous space around identity elements and consistent spacing in navigation, articles and technical content.",
+    "adaptation": "Adjust the grid and image crops to the format. Stack content in a clear reading order on narrow screens.",
+    "principle": "The identity defines a visual system, not a fixed arrangement of panels or a required image collage."
+  },
+  "applications": {
+    "portfolio_website": {
+      "purpose": "Introduce Sofía and show evidence of Game QA and 3D Environment Art work.",
+      "navigation": [
+        "Work",
+        "About",
+        "Skills",
+        "Contact"
+      ],
+      "hero_headline": "I test worlds and build them too.",
+      "hero_copy": "Game QA and 3D Environment Art with a focus on detail, atmosphere and player experience.",
+      "calls_to_action": [
+        "View work",
+        "About me"
+      ],
+      "visual_guidance": "Use a dark identity-led opening with a portrait or game environment. Keep project descriptions, skills and contact paths easy to read."
+    },
+    "blog": {
+      "purpose": "Share game-testing observations, environment-art processes and development notes.",
+      "visual_guidance": "Use Inter for long-form reading, short expressive headlines, dark neutral fields and restrained branded cover graphics.",
+      "content_categories": [
+        "Game QA",
+        "3D environments",
+        "Game development",
+        "Creative process"
+      ]
+    },
+    "business_card": {
+      "purpose": "Connect the creative identity to a clear professional name and contact details.",
+      "required_information": [
+        "Dark Queen / Sofía Arauz identity",
+        "Sofía Arauz",
+        "Game QA / 3D Environment Art",
+        "Email",
+        "Portfolio URL"
+      ],
+      "optional_information": [
+        "LinkedIn profile",
+        "GitHub profile"
+      ],
+      "visual_guidance": "Use a dark background, stone text and a restrained red signature or compact symbol."
+    },
+    "social_profiles": {
+      "handle": "darkqueen.exe",
+      "bio_positioning": "Sofía | Game QA & 3D Environment Art",
+      "tone": "Personal, alternative and game-focused",
+      "optional_highlight_labels": [
+        "me",
+        "games",
+        "3D",
+        "places",
+        "bikes"
+      ],
+      "visual_guidance": "Use a compact identity mark or portrait for the avatar and consistent palette and motifs across covers."
+    },
+    "merchandise": {
+      "formats": [
+        "Black hoodie",
+        "Black key tag"
+      ],
+      "visual_guidance": "Use a small stone-colored compact mark, with a restrained red accent where the production method supports it."
+    }
+  },
+  "contact": {
+    "name": "Sofía Arauz",
+    "email": "sofia1arauz0@gmail.com",
+    "portfolio_url": "https://sofiaarauzweb.netlify.app",
+    "profile_channels": [
+      "LinkedIn",
+      "GitHub"
+    ]
+  },
+  "specification_notes": [
+    "This specification defines the Dark Queen visual identity. It is separate from the Ritual / System identity and its broken-halo asset kit.",
+    "Hex values are the defined palette tokens for this identity, not measured values from photography.",
+    "Logo descriptions define the intended forms; final vector artwork determines exact geometry and production dimensions.",
+    "Reckless Neue remains a provisional accent-font reference rather than a confirmed handwritten font."
+  ]
+}
