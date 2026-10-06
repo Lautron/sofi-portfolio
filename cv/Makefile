@@ -5,7 +5,7 @@ DOCKER_IMAGE ?= texlive/texlive:latest
 
 PDFS := \
 	game-qa/Sofia_Arauz_Game_QA.pdf \
-	environment-art/Sofia_Arauz_3D_Environment_Artist.pdf
+	environment-art/Sofia_Arauz_Environment_Artist_Game_Developer.pdf
 
 COMMON_TEX := common/layout.tex common/identity.tex common/education-languages.tex
 CLASS := Awesome-CV/awesome-cv.cls
@@ -42,7 +42,7 @@ endef
 game-qa/Sofia_Arauz_Game_QA.pdf: game-qa/Sofia_Arauz_Game_QA.tex $(COMMON_TEX) $(CLASS)
 	$(build_pdf)
 
-environment-art/Sofia_Arauz_3D_Environment_Artist.pdf: environment-art/Sofia_Arauz_3D_Environment_Artist.tex $(COMMON_TEX) $(CLASS)
+environment-art/Sofia_Arauz_Environment_Artist_Game_Developer.pdf: environment-art/Sofia_Arauz_Environment_Artist_Game_Developer.tex $(COMMON_TEX) $(CLASS)
 	$(build_pdf)
 
 # Checks machine-verifiable requirements. The emitted pdftotext stream is the
@@ -67,4 +67,4 @@ preview: all
 	for pdf in $(PDFS); do pdftoppm -png -r 144 -singlefile "$$pdf" "$$out/$${pdf%.pdf}"; done
 
 clean:
-	rm -f $(PDFS)
+	rm -f $(PDFS) environment-art/Sofia_Arauz_3D_Environment_Artist.pdf
