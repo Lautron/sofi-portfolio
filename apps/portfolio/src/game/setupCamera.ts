@@ -29,6 +29,10 @@ export interface SetupCameraOptions {
 
 export interface CameraHandle {
   camera: FreeCamera
+  /** Holds the camera where it is, looking where it looks, while the bike rides on. */
+  lock: () => void
+  /** Resumes the chase; `snap` jumps straight to the chase position instead of easing there. */
+  follow: (options?: { snap?: boolean }) => void
   dispose: () => void
 }
 
@@ -55,9 +59,13 @@ export function setupCamera(
   const desiredOffset = new Vector3()
   const desiredLookOffset = new Vector3()
   const lookTarget = new Vector3()
+  const lockedPosition = new Vector3()
+  const lockedTarget = new Vector3()
   let speed = 0
   let time = 0
   let initialised = false
+  let locked = false
+  let kick = 0
 
   const follow: Observer<Scene> = scene.onBeforeRenderObservable.add(() => {
     if (bike.isDisposed() || camera.isDisposed()) return
@@ -68,6 +76,20 @@ export function setupCamera(
     // Tall screens have sky to spare and a card over the bottom; ride higher and
     // look further down so the bike sits nearer the middle.
     const portrait = scene.getEngine().getAspectRatio(camera) < 1
+    // A held camera keeps its framing rather than zooming as the speed dies down.
+    if (!locked) kick = (reducedMotion ? REDUCED_SPEED_FOV_KICK : SPEED_FOV_KICK) * speed
+    camera.fovMode = portrait ? Camera.FOVMODE_HORIZONTAL_FIXED : Camera.FOVMODE_VERTICAL_FIXED
+    camera.fov = (portrait ? PORTRAIT_HORIZONTAL_FOV : LANDSCAPE_VERTICAL_FOV) + kick
+    if (locked) {
+      camera.position.copyFrom(lockedPosition)
+      camera.setTarget(lockedTarget)
+      return
+    }
+
+    // The world matrix is cached per render id, and this observer runs before
+    // the id moves on: without forcing, it would return last frame's position
+    // and the camera would trail the bike by a frame, jittering with frame time.
+    bike.computeWorldMatrix(true)
     const bikePosition = bike.getAbsolutePosition()
     const behind = roadSampler(bikePosition.z - FOLLOW_DISTANCE - speed * 0.8)
     const ahead = roadSampler(bikePosition.z + LOOK_AHEAD)
@@ -87,6 +109,8 @@ export function setupCamera(
 
     bikePosition.addToRef(offset, camera.position)
     bikePosition.addToRef(lookOffset, lookTarget)
+    lockedPosition.copyFrom(camera.position)
+    lockedTarget.copyFrom(lookTarget)
     if (!reducedMotion) {
       // Road buzz: tiny, fast, and only near top speed.
       const shake = 0.03 * speed * speed
@@ -94,15 +118,18 @@ export function setupCamera(
       camera.position.y += (Math.sin(time * 37) * 0.6 + Math.sin(time * 61) * 0.4) * shake
     }
     camera.setTarget(lookTarget)
-
-    const kick = (reducedMotion ? REDUCED_SPEED_FOV_KICK : SPEED_FOV_KICK) * speed
-    camera.fovMode = portrait ? Camera.FOVMODE_HORIZONTAL_FIXED : Camera.FOVMODE_VERTICAL_FIXED
-    camera.fov = (portrait ? PORTRAIT_HORIZONTAL_FOV : LANDSCAPE_VERTICAL_FOV) + kick
   })
   let disposed = false
 
   return {
     camera,
+    lock: () => {
+      locked = true
+    },
+    follow: ({ snap = false } = {}) => {
+      locked = false
+      if (snap) initialised = false
+    },
     dispose: () => {
       if (disposed) return
       disposed = true

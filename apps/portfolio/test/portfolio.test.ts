@@ -4,7 +4,13 @@ import { getExternalOrigin } from '../src/config'
 import { roadLandmarks } from '../src/content/portfolio'
 import { escapeHtml, renderPortfolio } from '../src/content/renderPortfolio'
 import { BikeController } from '../src/game/BikeController'
+import { NullEngine } from '@babylonjs/core/Engines/nullEngine'
+import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder'
+import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
+import { Scene } from '@babylonjs/core/scene'
+import { createRideEnding } from '../src/game/createRideEnding'
 import { createRoadSampler, roadOffset } from '../src/game/createRoad'
+import { setupCamera } from '../src/game/setupCamera'
 import { scatterAlongRoad } from '../src/game/createVegetation'
 import { createRandom, fractalNoise } from '../src/game/random'
 import { findNearbyLandmark } from '../src/ui/findNearbyLandmark'
@@ -143,6 +149,20 @@ describe('createRoadSampler', () => {
     }
   })
 
+  it('pitches with the slope of the road, over the crest past the ride too', () => {
+    const full = createRoadSampler(1040)
+    for (const z of [-300, 150, 360, 400, 445, 480]) {
+      const a = full(z)
+      const b = full(z + 0.01)
+      const run = Math.hypot(b.center.x - a.center.x, b.center.z - a.center.z)
+      const pitch = Math.atan((b.center.y - a.center.y) / run)
+      assert.ok(Math.abs(pitch - a.pitch) < 1e-3, `pitch at ${z}`)
+    }
+    // The crest stands well above the road on either side of it.
+    assert.ok(full(435).center.y > full(340).center.y + 5)
+    assert.ok(full(435).center.y > full(480).center.y + 5)
+  })
+
   it('measures signed offsets across the road', () => {
     const { center, lateral } = sample(42)
     const right = center.add(lateral.scale(5))
@@ -190,3 +210,71 @@ describe('scenery', () => {
 function Vector3Distance(a: { x: number; y: number; z: number }, b: { x: number; y: number; z: number }) {
   return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z)
 }
+
+describe('createRideEnding', () => {
+  const options = { finishZ: 100, goneZ: 150, lingerSeconds: 5, fadeSeconds: 0.5 }
+
+  it('lets the bike ride off at the finish, lingers on the empty road, then restarts', () => {
+    const ending = createRideEnding(options)
+    assert.equal(ending.update(99, 0.1), null)
+    assert.equal(ending.phase, 'riding')
+    assert.equal(ending.update(100, 0.1), 'leave')
+    assert.equal(ending.update(149, 0.1), null)
+    assert.equal(ending.phase, 'leaving')
+    assert.equal(ending.update(150, 0.1), null)
+    assert.equal(ending.phase, 'gone')
+    let event = null
+    let seconds = 0
+    while (!event) {
+      event = ending.update(160, 0.25)
+      seconds += 0.25
+    }
+    assert.equal(event, 'fade')
+    assert.equal(seconds, 5)
+    assert.equal(ending.update(160, 0.25), null)
+    assert.equal(ending.update(160, 0.25), 'restart')
+    assert.equal(ending.phase, 'riding')
+    assert.equal(ending.update(-50, 0.1), null)
+  })
+
+  it('rejects a finish beyond the vanishing point', () => {
+    assert.throws(() => createRideEnding({ ...options, goneZ: 100 }), RangeError)
+  })
+})
+
+describe('setupCamera', () => {
+  // Manual renders have no frame time, so smoothing holds the camera's offset
+  // from the bike still and any change comes from where it thinks the bike is.
+  const setup = () => {
+    const engine = new NullEngine()
+    const scene = new Scene(engine)
+    const bike = new TransformNode('bike', scene)
+    // Drawing a part caches the bike's world matrix for the frame, as in the ride.
+    CreateBox('part', {}, scene).parent = bike
+    const handle = setupCamera(scene, bike, { roadSampler: createRoadSampler(1000), getSpeedRatio: () => 0 })
+    scene.render()
+    return { engine, scene, bike, handle }
+  }
+
+  it('follows the bike in the same frame it moves', () => {
+    const { engine, scene, bike, handle } = setup()
+    const offset = handle.camera.position.subtract(bike.position)
+    bike.position.z += 5
+    scene.render()
+    assert.ok(Vector3Distance(handle.camera.position.subtract(bike.position), offset) < 1e-9)
+    engine.dispose()
+  })
+
+  it('holds still while locked and snaps back to the chase when following again', () => {
+    const { engine, scene, bike, handle } = setup()
+    const held = handle.camera.position.clone()
+    handle.lock()
+    bike.position.z += 40
+    scene.render()
+    assert.ok(Vector3Distance(handle.camera.position, held) < 1e-9)
+    handle.follow({ snap: true })
+    scene.render()
+    assert.ok(handle.camera.position.z > held.z + 30)
+    engine.dispose()
+  })
+})

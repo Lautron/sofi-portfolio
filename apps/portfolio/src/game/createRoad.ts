@@ -61,6 +61,25 @@ const HILLS = [
   [2, 29, 1.7],
 ] as const
 
+// Past the last board the road climbs over a crest and drops away behind it,
+// so a rider leaving the ride disappears over the top.
+// [rise, start Z, end Z]; negative rises fall.
+const FAREWELL_HILL = [
+  [7, 350, 430],
+  [-16, 440, 520],
+] as const
+
+function ramps(terms: readonly (readonly [number, number, number])[], z: number) {
+  let value = 0
+  let slope = 0
+  for (const [rise, start, end] of terms) {
+    const t = Math.min(1, Math.max(0, (z - start) / (end - start)))
+    value += rise * t * t * (3 - 2 * t)
+    slope += (rise * 6 * t * (1 - t)) / (end - start)
+  }
+  return { value, slope }
+}
+
 function wave(terms: readonly (readonly [number, number, number])[], z: number) {
   let value = 0
   let slope = 0
@@ -86,7 +105,9 @@ export function createRoadSampler(length = DEFAULT_ROAD_LENGTH): RoadSampler {
   return (z) => {
     const clampedZ = Math.min(halfLength, Math.max(-halfLength, Number.isNaN(z) ? 0 : z))
     const x = wave(BENDS, clampedZ)
-    const y = wave(HILLS, clampedZ)
+    const hills = wave(HILLS, clampedZ)
+    const farewell = ramps(FAREWELL_HILL, clampedZ)
+    const y = { value: hills.value + farewell.value, slope: hills.slope + farewell.slope }
     const stretch = Math.hypot(x.slope, 1)
     const tangent = new Vector3(x.slope / stretch, 0, 1 / stretch)
     const lateral = new Vector3(tangent.z, 0, -tangent.x)

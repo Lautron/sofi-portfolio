@@ -12,6 +12,7 @@ import { createScene, disposeScene } from './game/createScene'
 import { createTerrain } from './game/createTerrain'
 import { createVegetation } from './game/createVegetation'
 import { createWindEffects } from './game/createWindEffects'
+import { createRideEnding } from './game/createRideEnding'
 import { createProceduralBike } from './game/loadBike'
 import { setupCamera } from './game/setupCamera'
 import { setupInput } from './game/setupInput'
@@ -50,19 +51,30 @@ const atmosphere = createAtmosphere(scene)
 // The road runs well past both ends of the ride so it fades into the haze
 // instead of stopping in view.
 const roadLength = 1040
-const route = { minZ: -340, maxZ: 340 }
+// Riders steer between the ends of the ride. Past the finish the bike rides
+// on by itself, over the crest that ends the road (see createRoad) and out of
+// sight, to a stop well behind it.
+const ride = { minZ: -340, finishZ: 340, goneZ: 465, maxZ: 480 }
+const route = { minZ: ride.minZ, maxZ: ride.maxZ }
+const startZ = ride.minZ + 5
+// Matches the canvas opacity transition in styles.css.
+const FADE_SECONDS = 0.6
 const topSpeed = 24
 const road = createRoad(scene, { length: roadLength, width: 8 })
 const roadSampler = createRoadSampler(roadLength)
 const terrain = createTerrain(scene, { roadSampler })
 const landmarks = createCvLandmarks(scene, { roadSampler })
 const bike = createProceduralBike(scene)
-bike.root.position.z = route.minZ + 5
+bike.root.position.z = startZ
 
 const controller = new BikeController(bike, { route, speed: topSpeed, acceleration: 9, deceleration: 14 })
+const ending = createRideEnding({ finishZ: ride.finishZ, goneZ: ride.goneZ, lingerSeconds: 2, fadeSeconds: FADE_SECONDS })
+// How fast the view itself rushes along: nothing once the camera stops to watch
+// the bike leave, so the wind and speed effects die down with it.
+const viewerSpeed = () => (ending.phase === 'riding' ? controller.getSpeedRatio() : 0)
 const camera = setupCamera(scene, bike.root, {
   roadSampler,
-  getSpeedRatio: () => controller.getSpeedRatio(),
+  getSpeedRatio: viewerSpeed,
   reducedMotion,
 })
 // Streaks rushing at the viewer are exactly what reduced motion asks to avoid.
@@ -71,7 +83,7 @@ const wind = reducedMotion
   : createWindEffects(scene, {
       camera: camera.camera,
       bike,
-      getSpeedRatio: () => controller.getSpeedRatio(),
+      getSpeedRatio: viewerSpeed,
       topSpeed,
     })
 
@@ -116,7 +128,7 @@ const vegetationTimer = window.setTimeout(() => {
     roadSampler,
     heightAt: terrain.heightAt,
     minZ: route.minZ - 120,
-    maxZ: route.maxZ + 140,
+    maxZ: route.maxZ + 50,
     clearings: roadLandmarks.map(({ roadPosition }) => {
       const sample = roadSampler(roadPosition.z)
       const centre = sample.center.add(sample.lateral.scale(roadPosition.x))
@@ -141,14 +153,42 @@ let diagnostics = null
 let stopOptimization = () => {}
 let cancelOptimizationStartup = () => {}
 
+const restartRide = () => {
+  controller.setInputDirection('ride-off', 0)
+  controller.park()
+  bike.root.position.z = startZ
+  lean = 0
+  camera.follow({ snap: true })
+  hero.classList.remove('ride-fading')
+}
+
 let shownSpeed = -1
 const render = () => {
   const seconds = Math.min(engineHandle.engine.getDeltaTime() / 1000, MAX_FRAME_SECONDS)
+  // Once it has left, the bike rides on whatever is pressed. Asserted every
+  // frame because stopping or hiding the ride clears every input.
+  if (ending.phase !== 'riding') controller.setInputDirection('ride-off', 1)
   controller.update(seconds)
+  switch (ending.update(bike.root.position.z, seconds)) {
+    case 'leave':
+      camera.lock()
+      controller.setInputDirection('ride-off', 1)
+      break
+    case 'fade':
+      hero.classList.add('ride-fading')
+      // The ride is over, so carry on down to the portfolio (smoothly unless
+      // reduced motion is asked for; see styles.css). Hiding the hero pauses
+      // the fade, which finishes and restarts the ride when it is scrolled back.
+      document.getElementById('main')?.scrollIntoView()
+      break
+    case 'restart':
+      restartRide()
+      break
+  }
   alignBikeToRoad(seconds)
   card.update(bike.root.position.z)
   // Drives the CSS speed vignette; skip style writes for invisible changes.
-  const speed = Math.round(controller.getSpeedRatio() * 50) / 50
+  const speed = Math.round(viewerSpeed() * 50) / 50
   if (speed !== shownSpeed) {
     shownSpeed = speed
     hero.style.setProperty('--ride-speed', String(speed))
@@ -185,7 +225,7 @@ const dispose = () => {
   setRendering(false)
   disposed = true
   // A back/forward-cache restore must not advertise a ride that is gone.
-  hero.classList.remove('ride-ready')
+  hero.classList.remove('ride-ready', 'ride-fading')
   hero.style.removeProperty('--ride-speed')
   window.removeEventListener('pagehide', onPageHide)
   heroObserver.disconnect()
