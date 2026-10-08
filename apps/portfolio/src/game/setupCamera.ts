@@ -14,6 +14,9 @@ const SPEED_FOV_KICK = 0.18
 const REDUCED_SPEED_FOV_KICK = 0.06
 const FOLLOW_DISTANCE = 8.5
 const FOLLOW_HEIGHT = 3.3
+/** Sits off to the bike's right, so the chase shows its flank, not just its tail. */
+const FOLLOW_SIDE = 1.8
+const LOOK_SIDE = 0.6
 const LOOK_AHEAD = 8
 const MAX_FRAME_SECONDS = 0.1
 
@@ -94,8 +97,12 @@ export function setupCamera(
     const behind = roadSampler(bikePosition.z - FOLLOW_DISTANCE - speed * 0.8)
     const ahead = roadSampler(bikePosition.z + LOOK_AHEAD)
     behind.center.subtractToRef(bikePosition, desiredOffset)
+    desiredOffset.x += behind.tangent.z * FOLLOW_SIDE
+    desiredOffset.z -= behind.tangent.x * FOLLOW_SIDE
     desiredOffset.y = Math.max(behind.center.y - bikePosition.y, -0.6) + FOLLOW_HEIGHT + speed * 0.35 + (portrait ? 1 : 0)
     ahead.center.subtractToRef(bikePosition, desiredLookOffset)
+    desiredLookOffset.x += ahead.tangent.z * LOOK_SIDE
+    desiredLookOffset.z -= ahead.tangent.x * LOOK_SIDE
     desiredLookOffset.y += portrait ? -0.8 : 1.3
 
     if (!initialised) {
