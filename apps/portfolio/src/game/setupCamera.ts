@@ -1,7 +1,11 @@
 import { ArcRotateCamera } from '@babylonjs/core/Cameras/arcRotateCamera'
+import { Camera } from '@babylonjs/core/Cameras/camera'
 import type { Observer } from '@babylonjs/core/Misc/observable'
 import type { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import type { Scene } from '@babylonjs/core/scene'
+
+/** Wide enough to frame the road plus both board columns (about ±10 units). */
+const PORTRAIT_HORIZONTAL_FOV = 1.1
 
 export interface SetupCameraOptions {
   /** Camera name in the Babylon scene. */
@@ -46,8 +50,15 @@ export function setupCamera(
   camera.upperRadiusLimit = height
   scene.activeCamera = camera
 
+  const landscapeFov = camera.fov
   const follow: Observer<Scene> = scene.onBeforeRenderObservable.add(() => {
-    if (!bike.isDisposed() && !camera.isDisposed()) camera.setTarget(bike.getAbsolutePosition())
+    if (bike.isDisposed() || camera.isDisposed()) return
+    camera.setTarget(bike.getAbsolutePosition())
+    // Portrait screens fix the horizontal field of view instead, so both
+    // roadside boards stay in frame on phones.
+    const portrait = scene.getEngine().getAspectRatio(camera) < 1
+    camera.fovMode = portrait ? Camera.FOVMODE_HORIZONTAL_FIXED : Camera.FOVMODE_VERTICAL_FIXED
+    camera.fov = portrait ? PORTRAIT_HORIZONTAL_FOV : landscapeFov
   })
   let disposed = false
 

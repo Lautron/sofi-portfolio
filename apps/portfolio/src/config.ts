@@ -1,4 +1,8 @@
-function getExternalOrigin(value: string | undefined): string | undefined {
+/**
+ * Accepts only a bare http(s) origin. Used by the build to decide whether the
+ * Blog link is rendered.
+ */
+export function getExternalOrigin(value: string | undefined): string | undefined {
   if (!value) {
     return undefined
   }
@@ -22,5 +26,3 @@ function getExternalOrigin(value: string | undefined): string | undefined {
     return undefined
   }
 }
-
-export const blogOrigin = getExternalOrigin(import.meta.env.VITE_BLOG_ORIGIN)

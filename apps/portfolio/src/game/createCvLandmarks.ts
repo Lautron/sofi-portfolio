@@ -5,11 +5,15 @@ import { AdvancedDynamicTexture } from '@babylonjs/gui/2D/advancedDynamicTexture
 import { Control } from '@babylonjs/gui/2D/controls/control'
 import { Rectangle } from '@babylonjs/gui/2D/controls/rectangle'
 import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock'
-import { cvLandmarks, type CvLandmarkContent } from '../content/cv'
+import { roadLandmarks, type RoadLandmark } from '../content/portfolio'
 import { createRoadSampler, type RoadSampler } from './createRoad'
 
+const BLOOD_RED = '#8b1e24'
+const STONE = '#e8e4de'
+const BOARD_FONT = 'Inter, ui-sans-serif, system-ui, sans-serif'
+
 export interface CreateCvLandmarksOptions {
-  landmarks?: readonly CvLandmarkContent[]
+  landmarks?: readonly RoadLandmark[]
   name?: string
   roadSampler?: RoadSampler
 }
@@ -26,7 +30,7 @@ export interface CvLandmarksHandle {
 export function createCvLandmarks(
   scene: Scene,
   {
-    landmarks = cvLandmarks,
+    landmarks = roadLandmarks,
     name = 'cv-landmarks',
     roadSampler = createRoadSampler(),
   }: CreateCvLandmarksOptions = {},
@@ -40,7 +44,7 @@ export function createCvLandmarks(
     landmarkRoot.position.copyFrom(road.center).addInPlace(road.lateral.scale(landmark.roadPosition.x))
     landmarkRoot.rotation.y = road.yaw
 
-    const board = MeshBuilder.CreatePlane(`${name}-${landmark.id}-board`, { width: 4.8, height: 2.7 }, scene)
+    const board = MeshBuilder.CreatePlane(`${name}-${landmark.id}-board`, { width: 5.6, height: 3.15 }, scene)
     board.parent = landmarkRoot
     board.position.y = 0.06
     // Babylon planes have a local -Z front normal; +X rotation maps it to +Y.
@@ -49,32 +53,37 @@ export function createCvLandmarks(
 
     const texture = AdvancedDynamicTexture.CreateForMesh(board, 1024, 576, false)
     const frame = new Rectangle(`${name}-${landmark.id}-frame`)
-    frame.thickness = 6
-    frame.color = '#f4d36b'
-    frame.background = '#101820e8'
+    frame.thickness = 10
+    frame.color = BLOOD_RED
+    frame.background = '#0b0b0bf0'
     texture.addControl(frame)
 
     const title = new TextBlock(`${name}-${landmark.id}-title`, landmark.title)
-    title.color = '#f4d36b'
-    title.fontFamily = 'system-ui, sans-serif'
-    title.fontSize = 56
+    title.color = STONE
+    title.fontFamily = BOARD_FONT
+    title.fontSize = 76
     title.fontWeight = '700'
-    title.height = '34%'
-    title.paddingLeft = '48px'
-    title.paddingRight = '48px'
+    title.height = '30%'
+    title.paddingTop = '40px'
+    title.paddingLeft = '56px'
+    title.paddingRight = '56px'
+    // Controls default to vertical centring; pin each block to its own edge
+    // so the title and detail can never overlap.
+    title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP
     title.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT
     title.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_TOP
     frame.addControl(title)
 
-    const detail = new TextBlock(`${name}-${landmark.id}-detail`, landmark.content)
-    detail.color = '#e7edf0'
-    detail.fontFamily = 'system-ui, sans-serif'
-    detail.fontSize = 32
-    detail.height = '56%'
-    detail.paddingBottom = '36px'
-    detail.paddingLeft = '48px'
-    detail.paddingRight = '48px'
-    detail.resizeToFit = true
+    const detail = new TextBlock(`${name}-${landmark.id}-detail`, landmark.board)
+    detail.color = STONE
+    detail.fontFamily = BOARD_FONT
+    detail.fontSize = 42
+    detail.lineSpacing = '10px'
+    detail.height = '66%'
+    detail.paddingBottom = '44px'
+    detail.paddingLeft = '56px'
+    detail.paddingRight = '56px'
+    detail.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM
     detail.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT
     detail.textVerticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM
     detail.textWrapping = true
