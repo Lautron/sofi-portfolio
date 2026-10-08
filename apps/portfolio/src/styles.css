@@ -83,6 +83,16 @@ a:hover { color: var(--dusty-rose); }
   position: relative;
 }
 
+/* Edges darken as the bike speeds up; main.jsx sets --ride-speed (0–1). */
+.hero::after {
+  background: radial-gradient(ellipse at 50% 60%, transparent 50%, rgba(11, 11, 11, 0.6) 100%);
+  content: "";
+  inset: 0;
+  opacity: calc(var(--ride-speed, 0) * 0.85);
+  pointer-events: none;
+  position: absolute;
+}
+
 #portfolio-canvas {
   display: block;
   height: 100%;
@@ -96,13 +106,15 @@ a:hover { color: var(--dusty-rose); }
 
 .hero-top {
   align-items: flex-start;
-  background: linear-gradient(rgba(11, 11, 11, 0.92), rgba(11, 11, 11, 0.6) 70%, transparent);
+  /* Light enough to let the sky through, dark enough for the copy. */
+  background: linear-gradient(rgba(11, 11, 11, 0.78), rgba(11, 11, 11, 0.4) 65%, transparent);
   display: flex;
   gap: 1.5rem;
   justify-content: space-between;
   padding: 1.25rem var(--gutter) 2.5rem;
   pointer-events: none;
   position: relative;
+  text-shadow: 0 1px 6px rgba(11, 11, 11, 0.6);
   z-index: 1;
 }
 .hero-top a { pointer-events: auto; }

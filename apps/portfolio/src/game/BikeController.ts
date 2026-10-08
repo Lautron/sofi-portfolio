@@ -12,8 +12,12 @@ export interface BikeRoute {
 
 export interface BikeControllerOptions {
   route: BikeRoute
-  /** World units per second. Defaults to 8. */
+  /** Top speed in world units per second. Defaults to 8. */
   speed?: number
+  /** Units per second squared when speeding up. Defaults to instant. */
+  acceleration?: number
+  /** Units per second squared when coasting or braking. Defaults to `acceleration`. */
+  deceleration?: number
 }
 
 /**
@@ -27,15 +31,24 @@ export class BikeController {
   readonly route: BikeRoute
   readonly speed: number
   readonly wheelRadius: number
+  readonly acceleration: number
+  readonly deceleration: number
   private direction: BikeDirection = 0
+  private velocity = 0
   private readonly inputDirections = new Map<string, BikeDirection>()
 
-  constructor(bike: BikeAsset | TransformNode, { route, speed = 8 }: BikeControllerOptions) {
+  constructor(
+    bike: BikeAsset | TransformNode,
+    { route, speed = 8, acceleration = Infinity, deceleration = acceleration }: BikeControllerOptions,
+  ) {
     if (!Number.isFinite(route.minZ) || !Number.isFinite(route.maxZ) || route.minZ > route.maxZ) {
       throw new RangeError('Bike route must have finite minZ <= maxZ bounds.')
     }
     if (!Number.isFinite(speed) || speed < 0) {
       throw new RangeError('Bike speed must be a finite non-negative number.')
+    }
+    if (!(acceleration > 0) || !(deceleration > 0)) {
+      throw new RangeError('Bike acceleration and deceleration must be positive.')
     }
 
     this.root = 'root' in bike ? bike.root : bike
@@ -43,6 +56,8 @@ export class BikeController {
     this.wheelRadius = 'wheelRadius' in bike ? bike.wheelRadius : 1
     this.route = { ...route }
     this.speed = speed
+    this.acceleration = acceleration
+    this.deceleration = deceleration
     this.root.position.z = this.constrain(this.root.position.z)
   }
 
@@ -54,9 +69,16 @@ export class BikeController {
     this.setInputDirection('manual', -1)
   }
 
+  /** Releases every input; the bike brakes to a halt at its deceleration. */
   stop(): void {
     this.inputDirections.clear()
     this.direction = 0
+  }
+
+  /** Stops at once, for when nobody can see the ride. */
+  park(): void {
+    this.stop()
+    this.velocity = 0
   }
 
   /**
@@ -76,20 +98,45 @@ export class BikeController {
     return this.direction
   }
 
-  /** Advances exactly by `speed * deltaSeconds`, clamped to the route. */
+  /** Signed velocity along the route, in units per second. */
+  getVelocity(): number {
+    return this.velocity
+  }
+
+  /** Current speed as a fraction of top speed, from 0 to 1. */
+  getSpeedRatio(): number {
+    return this.speed > 0 ? Math.abs(this.velocity) / this.speed : 0
+  }
+
+  /**
+   * Eases velocity towards the commanded direction, then moves by it,
+   * clamped to the route. With the default instant acceleration this advances
+   * exactly by `speed * deltaSeconds`.
+   */
   update(deltaSeconds: number): number {
     if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
       throw new RangeError('Bike update deltaSeconds must be a finite non-negative number.')
     }
 
-    const requestedDistance = this.direction * this.speed * deltaSeconds
+    const target = this.direction * this.speed
+    const speedingUp = Math.abs(target) > Math.abs(this.velocity) && Math.sign(target) !== -Math.sign(this.velocity)
+    const rate = speedingUp ? this.acceleration : this.deceleration
+    const maxChange = rate * deltaSeconds
+    const change = target - this.velocity
+    // Infinity * 0 is NaN, so instant rates skip the easing arithmetic.
+    this.velocity = !Number.isFinite(rate) || Math.abs(change) <= maxChange ? target : this.velocity + Math.sign(change) * maxChange
+
     const previousZ = this.root.position.z
-    const nextZ = this.constrain(previousZ + requestedDistance)
+    const nextZ = this.constrain(previousZ + this.velocity * deltaSeconds)
     const actualDistance = nextZ - previousZ
     this.root.position.z = nextZ
+    // Hitting either end of the road stops the bike dead.
+    if ((nextZ === this.route.maxZ && this.velocity > 0) || (nextZ === this.route.minZ && this.velocity < 0)) {
+      this.velocity = 0
+    }
 
     if (actualDistance !== 0 && this.wheels.length > 0) {
-      // The procedural wheels use a local X axle after their Z-axis orientation.
+      // Wheel nodes spin about their local X axle.
       const rotation = actualDistance / this.wheelRadius
       for (const wheel of this.wheels) wheel.rotation.x += rotation
     }

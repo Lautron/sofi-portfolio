@@ -1,17 +1,17 @@
 // @ts-check
-import { HemisphericLight } from '@babylonjs/core/Lights/hemisphericLight'
-import { Color3 } from '@babylonjs/core/Maths/math.color'
-import { Vector3 } from '@babylonjs/core/Maths/math.vector'
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
-import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder'
-import { Scene } from '@babylonjs/core/scene'
+import { ShadowGenerator } from '@babylonjs/core/Lights/Shadows/shadowGenerator'
+import '@babylonjs/core/Lights/Shadows/shadowGeneratorSceneComponent'
 import { roadLandmarks } from './content/portfolio'
 import { BikeController } from './game/BikeController'
+import { createAtmosphere } from './game/createAtmosphere'
 import { createControls } from './game/createControls'
 import { createCvLandmarks } from './game/createCvLandmarks'
 import { createEngine } from './game/createEngine'
 import { createRoad, createRoadSampler } from './game/createRoad'
 import { createScene, disposeScene } from './game/createScene'
+import { createTerrain } from './game/createTerrain'
+import { createVegetation } from './game/createVegetation'
+import { createWindEffects } from './game/createWindEffects'
 import { createProceduralBike } from './game/loadBike'
 import { setupCamera } from './game/setupCamera'
 import { setupInput } from './game/setupInput'
@@ -30,7 +30,9 @@ if (!(hero instanceof HTMLElement) || !canvas) throw new Error('The portfolio he
 let engineHandle
 try {
   // The canvas fills the hero, so touch must still be able to scroll the page.
-  engineHandle = createEngine(canvas, { engineOptions: { doNotHandleTouchAction: true } })
+  // Phones report device pixel ratios of 3 or more; rendering the ride at full
+  // density would cost far more than it shows.
+  engineHandle = createEngine(canvas, { engineOptions: { doNotHandleTouchAction: true, limitDeviceRatio: 1.5 } })
 } catch (error) {
   // The whole portfolio is plain HTML below the hero; only the ride is lost.
   hero.classList.add('ride-unavailable')
@@ -40,39 +42,92 @@ try {
 hero.classList.add('ride-ready')
 
 const scene = createScene(engineHandle.engine)
-scene.clearColor.set(0.043, 0.043, 0.043, 1)
-scene.fogMode = Scene.FOGMODE_LINEAR
-scene.fogColor = new Color3(0.043, 0.043, 0.043)
-scene.fogStart = 34
-scene.fogEnd = 70
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// Nothing in the ride responds to hovering, so skip picking on every pointer move.
+scene.skipPointerMovePicking = true
+const atmosphere = createAtmosphere(scene)
 
-new HemisphericLight('sky', new Vector3(0, 1, 0), scene).intensity = 1.2
-
-// Wide enough that its edges sit in the fog rather than in view.
-const ground = MeshBuilder.CreateGround('ground', { width: 120, height: 160 }, scene)
-const groundMaterial = new StandardMaterial('ground-material', scene)
-groundMaterial.diffuseColor = new Color3(0.14, 0.2, 0.17)
-ground.material = groundMaterial
-
-const roadLength = 80
+// The road runs well past both ends of the ride so it fades into the haze
+// instead of stopping in view.
+const roadLength = 1040
+const route = { minZ: -340, maxZ: 340 }
+const topSpeed = 24
 const road = createRoad(scene, { length: roadLength, width: 8 })
 const roadSampler = createRoadSampler(roadLength)
+const terrain = createTerrain(scene, { roadSampler })
 const landmarks = createCvLandmarks(scene, { roadSampler })
 const bike = createProceduralBike(scene)
-bike.root.position.z = -30
-const alignBikeToRoad = () => {
+bike.root.position.z = route.minZ + 5
+
+const controller = new BikeController(bike, { route, speed: topSpeed, acceleration: 9, deceleration: 14 })
+const camera = setupCamera(scene, bike.root, {
+  roadSampler,
+  getSpeedRatio: () => controller.getSpeedRatio(),
+  reducedMotion,
+})
+// Streaks rushing at the viewer are exactly what reduced motion asks to avoid.
+const wind = reducedMotion
+  ? null
+  : createWindEffects(scene, {
+      camera: camera.camera,
+      bike,
+      getSpeedRatio: () => controller.getSpeedRatio(),
+      topSpeed,
+    })
+
+// Only the bike casts a shadow: a tight shadow map that follows it around.
+const shadows = new ShadowGenerator(1024, atmosphere.sun)
+// The sun sits 30 units up-light of the bike (see alignBikeToRoad); a tight
+// depth range keeps the shadow map precise instead of spanning the whole sky.
+atmosphere.sun.shadowMinZ = 1
+atmosphere.sun.shadowMaxZ = 60
+shadows.usePercentageCloserFiltering = engineHandle.engine.webGLVersion >= 2
+shadows.usePoissonSampling = engineHandle.engine.webGLVersion < 2
+shadows.filteringQuality = ShadowGenerator.QUALITY_LOW
+shadows.bias = 0.002
+shadows.normalBias = 0.02
+for (const mesh of bike.meshes) shadows.addShadowCaster(mesh)
+for (const surface of road.surfaces) surface.receiveShadows = true
+
+let lean = 0
+const alignBikeToRoad = (/** @type {number} */ seconds) => {
   const sample = roadSampler(bike.root.position.z)
   bike.root.position.x = sample.center.x
-  // Keep the procedural model's local -Z-to-forward correction while aligning
-  // that forward direction with the sampled route tangent.
-  bike.root.rotation.y = sample.yaw + Math.PI
+  bike.root.position.y = sample.center.y
+  bike.root.rotation.y = sample.yaw
+  // Positive Babylon X rotation tips the nose down; climbing needs it up.
+  bike.root.rotation.x = -sample.pitch
+  // Lean into bends like a real bike: tan(lean) = v² · curvature / g.
+  const velocity = controller.getVelocity()
+  const targetLean = Math.atan((velocity * velocity * sample.curvature) / 9.8) * 1.6
+  lean += (targetLean - lean) * (1 - Math.exp(-seconds * 5))
+  // Positive Z rotation tips the top towards -X (left); right bends lean right.
+  bike.body.rotation.z = -Math.max(-0.6, Math.min(0.6, lean))
+  atmosphere.sun.position.copyFrom(bike.root.position).subtractInPlace(atmosphere.sun.direction.scale(30))
 }
-alignBikeToRoad()
+alignBikeToRoad(0)
 
-const controller = new BikeController(bike, { route: { minZ: -34, maxZ: 30 }, speed: 8 })
-const camera = setupCamera(scene, bike.root)
+// Scenery is the slowest part to build; let the road and bike show first and
+// plant it while the GPU is still compiling their shaders.
+/** @type {ReturnType<typeof createVegetation> | null} */
+let vegetation = null
+const vegetationTimer = window.setTimeout(() => {
+  vegetation = createVegetation(scene, {
+    roadSampler,
+    heightAt: terrain.heightAt,
+    minZ: route.minZ - 120,
+    maxZ: route.maxZ + 140,
+    clearings: roadLandmarks.map(({ roadPosition }) => {
+      const sample = roadSampler(roadPosition.z)
+      const centre = sample.center.add(sample.lateral.scale(roadPosition.x))
+      return { x: centre.x, z: centre.z, radius: 7 }
+    }),
+  })
+}, 0)
+
 const controls = createControls(hero, controller)
-const card = createLandmarkCard(hero, { landmarks: roadLandmarks })
+// Boards are spaced far apart, so the card shows for a good stretch either side.
+const card = createLandmarkCard(hero, { landmarks: roadLandmarks, radius: 22 })
 
 // Ride keys only drive while the hero is mostly on screen; elsewhere the
 // arrows and Space scroll the page as usual.
@@ -86,10 +141,18 @@ let diagnostics = null
 let stopOptimization = () => {}
 let cancelOptimizationStartup = () => {}
 
+let shownSpeed = -1
 const render = () => {
-  controller.update(Math.min(engineHandle.engine.getDeltaTime() / 1000, MAX_FRAME_SECONDS))
-  alignBikeToRoad()
+  const seconds = Math.min(engineHandle.engine.getDeltaTime() / 1000, MAX_FRAME_SECONDS)
+  controller.update(seconds)
+  alignBikeToRoad(seconds)
   card.update(bike.root.position.z)
+  // Drives the CSS speed vignette; skip style writes for invisible changes.
+  const speed = Math.round(controller.getSpeedRatio() * 50) / 50
+  if (speed !== shownSpeed) {
+    shownSpeed = speed
+    hero.style.setProperty('--ride-speed', String(speed))
+  }
   scene.render()
 }
 
@@ -100,7 +163,7 @@ const setRendering = (/** @type {boolean} */ shouldRender) => {
     engineHandle.engine.runRenderLoop(render)
   } else {
     // Nobody can see the ride, so park the bike and save the battery.
-    controller.stop()
+    controller.park()
     engineHandle.engine.stopRenderLoop(render)
   }
 }
@@ -123,6 +186,7 @@ const dispose = () => {
   disposed = true
   // A back/forward-cache restore must not advertise a ride that is gone.
   hero.classList.remove('ride-ready')
+  hero.style.removeProperty('--ride-speed')
   window.removeEventListener('pagehide', onPageHide)
   heroObserver.disconnect()
   diagnostics?.dispose()
@@ -131,10 +195,16 @@ const dispose = () => {
   card.dispose()
   controls.dispose()
   input.dispose()
+  wind?.dispose()
+  shadows.dispose()
   camera.dispose()
+  bike.root.dispose()
+  window.clearTimeout(vegetationTimer)
+  vegetation?.dispose()
   landmarks.dispose()
+  terrain.dispose()
   road.dispose()
-  groundMaterial.dispose()
+  atmosphere.dispose()
   disposeScene(scene)
   engineHandle.dispose()
 }
