@@ -9,7 +9,7 @@ import { BikeController } from './game/BikeController'
 import { createControls } from './game/createControls'
 import { createCvLandmarks } from './game/createCvLandmarks'
 import { createEngine } from './game/createEngine'
-import { createRoad } from './game/createRoad'
+import { createRoad, createRoadSampler } from './game/createRoad'
 import { createScene, disposeScene } from './game/createScene'
 import { createProceduralBike } from './game/loadBike'
 import { setupCamera } from './game/setupCamera'
@@ -31,10 +31,20 @@ const groundMaterial = new StandardMaterial('ground-material', scene)
 groundMaterial.diffuseColor = new Color3(0.14, 0.2, 0.17)
 ground.material = groundMaterial
 
-const road = createRoad(scene, { length: 80, width: 8 })
-const landmarks = createCvLandmarks(scene)
+const roadLength = 80
+const road = createRoad(scene, { length: roadLength, width: 8 })
+const roadSampler = createRoadSampler(roadLength)
+const landmarks = createCvLandmarks(scene, { roadSampler })
 const bike = createProceduralBike(scene)
 bike.root.position.z = -30
+const alignBikeToRoad = () => {
+  const sample = roadSampler(bike.root.position.z)
+  bike.root.position.x = sample.center.x
+  // Keep the procedural model's local -Z-to-forward correction while aligning
+  // that forward direction with the sampled route tangent.
+  bike.root.rotation.y = sample.yaw + Math.PI
+}
+alignBikeToRoad()
 
 const controller = new BikeController(bike, { route: { minZ: -34, maxZ: 34 }, speed: 8 })
 const camera = setupCamera(scene, bike.root)
@@ -60,6 +70,7 @@ let cancelOptimizationStartup = () => {}
 
 const render = () => {
   controller.update(engineHandle.engine.getDeltaTime() / 1000)
+  alignBikeToRoad()
   scene.render()
 }
 

@@ -17,8 +17,8 @@ export interface CameraHandle {
 
 /**
  * Creates a non-interactive oblique camera which keeps the bike centred as it
- * travels. The angle keeps the vertical CV boards readable while retaining a
- * useful view of the route. The scene render loop remains owned by the caller.
+ * travels. Its slightly right-side angle retains a useful view of the route.
+ * The scene render loop remains owned by the caller.
  */
 export function setupCamera(
   scene: Scene,
@@ -31,7 +31,15 @@ export function setupCamera(
 
   const target = bike.getAbsolutePosition().clone()
   const obliqueAngle = 0.62
-  const camera = new ArcRotateCamera(name, -Math.PI / 2, obliqueAngle, height, target, scene)
+  const rightSideOffset = 0.2
+  const camera = new ArcRotateCamera(
+    name,
+    -Math.PI / 2 + rightSideOffset,
+    obliqueAngle,
+    height,
+    target,
+    scene,
+  )
   camera.lowerBetaLimit = obliqueAngle
   camera.upperBetaLimit = obliqueAngle
   camera.lowerRadiusLimit = height

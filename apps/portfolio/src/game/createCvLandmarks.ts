@@ -1,5 +1,3 @@
-import { Color3 } from '@babylonjs/core/Maths/math.color'
-import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
 import { MeshBuilder } from '@babylonjs/core/Meshes/meshBuilder'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import type { Scene } from '@babylonjs/core/scene'
@@ -8,10 +6,12 @@ import { Control } from '@babylonjs/gui/2D/controls/control'
 import { Rectangle } from '@babylonjs/gui/2D/controls/rectangle'
 import { TextBlock } from '@babylonjs/gui/2D/controls/textBlock'
 import { cvLandmarks, type CvLandmarkContent } from '../content/cv'
+import { createRoadSampler, type RoadSampler } from './createRoad'
 
 export interface CreateCvLandmarksOptions {
   landmarks?: readonly CvLandmarkContent[]
   name?: string
+  roadSampler?: RoadSampler
 }
 
 export interface CvLandmarksHandle {
@@ -25,35 +25,29 @@ export interface CvLandmarksHandle {
  */
 export function createCvLandmarks(
   scene: Scene,
-  { landmarks = cvLandmarks, name = 'cv-landmarks' }: CreateCvLandmarksOptions = {},
+  {
+    landmarks = cvLandmarks,
+    name = 'cv-landmarks',
+    roadSampler = createRoadSampler(),
+  }: CreateCvLandmarksOptions = {},
 ): CvLandmarksHandle {
   const root = new TransformNode(name, scene)
-  const boardMaterial = new StandardMaterial(`${name}-board-material`, scene)
-  boardMaterial.diffuseColor = new Color3(0.06, 0.1, 0.12)
-  // A board can be approached from either direction along the road.
-  boardMaterial.backFaceCulling = false
-  const postMaterial = new StandardMaterial(`${name}-post-material`, scene)
-  postMaterial.diffuseColor = new Color3(0.2, 0.25, 0.24)
-  const textures: AdvancedDynamicTexture[] = []
 
   for (const landmark of landmarks) {
+    const road = roadSampler(landmark.roadPosition.z)
     const landmarkRoot = new TransformNode(`${name}-${landmark.id}`, scene)
     landmarkRoot.parent = root
-    landmarkRoot.position.set(landmark.roadPosition.x, 0, landmark.roadPosition.z)
+    landmarkRoot.position.copyFrom(road.center).addInPlace(road.lateral.scale(landmark.roadPosition.x))
+    landmarkRoot.rotation.y = road.yaw
 
     const board = MeshBuilder.CreatePlane(`${name}-${landmark.id}-board`, { width: 4.8, height: 2.7 }, scene)
     board.parent = landmarkRoot
-    board.position.y = 2.55
-    board.billboardMode = TransformNode.BILLBOARDMODE_Y
-    board.material = boardMaterial
-
-    const post = MeshBuilder.CreateBox(`${name}-${landmark.id}-post`, { width: 0.22, height: 2.6, depth: 0.22 }, scene)
-    post.parent = landmarkRoot
-    post.position.y = 1.3
-    post.material = postMaterial
+    board.position.y = 0.06
+    // Babylon planes have a local -Z front normal; +X rotation maps it to +Y.
+    // Keeping local +Y toward world +Z preserves the upright GUI orientation.
+    board.rotation.x = Math.PI / 2
 
     const texture = AdvancedDynamicTexture.CreateForMesh(board, 1024, 576, false)
-    textures.push(texture)
     const frame = new Rectangle(`${name}-${landmark.id}-frame`)
     frame.thickness = 6
     frame.color = '#f4d36b'
@@ -93,10 +87,9 @@ export function createCvLandmarks(
     dispose: () => {
       if (disposed) return
       disposed = true
-      for (const texture of textures) texture.dispose()
-      root.dispose()
-      boardMaterial.dispose()
-      postMaterial.dispose()
+      // CreateForMesh owns a material and texture per board. Let hierarchy
+      // disposal release both once rather than separately disposing the ADTs.
+      root.dispose(false, true)
     },
   }
 }
