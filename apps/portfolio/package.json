@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
-    "test": "node --import ./test/resolve-extensionless.ts --test 'test/**/*.test.ts'"
+    "test": "node --import ./test/resolve-extensionless.ts --test 'test/**/*.test.ts'",
+    "convert:bike": "node scripts/convert-bike.mjs"
   },
   "dependencies": {
     "@babylonjs/core": "9.29.0",
@@ -16,7 +17,11 @@
     "@babylonjs/loaders": "9.29.0"
   },
   "devDependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "@types/node": "24.19.1",
+    "fbx2gltf": "0.9.7-p1",
     "typescript": "7.0.2",
     "vite": "8.3.3"
   }

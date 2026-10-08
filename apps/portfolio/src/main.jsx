@@ -13,11 +13,12 @@ import { createTerrain } from './game/createTerrain'
 import { createVegetation } from './game/createVegetation'
 import { createWindEffects } from './game/createWindEffects'
 import { createRideEnding } from './game/createRideEnding'
-import { createProceduralBike } from './game/loadBike'
+import { loadBike } from './game/loadBike'
 import { setupCamera } from './game/setupCamera'
 import { setupInput } from './game/setupInput'
 import { createLandmarkCard } from './ui/createLandmarkCard'
 import './styles.css'
+import bikeModelUrl from './assets/models/moto.glb?url'
 
 // Longest frame step applied to the bike, so a stalled tab cannot teleport it.
 const MAX_FRAME_SECONDS = 0.1
@@ -40,9 +41,9 @@ try {
   throw error
 }
 
-hero.classList.add('ride-ready')
-
 const scene = createScene(engineHandle.engine)
+// Fetch the bike while the scenery is built.
+const bikeLoading = loadBike(scene, bikeModelUrl)
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 // Nothing in the ride responds to hovering, so skip picking on every pointer move.
 scene.skipPointerMovePicking = true
@@ -64,7 +65,17 @@ const road = createRoad(scene, { length: roadLength, width: 8 })
 const roadSampler = createRoadSampler(roadLength)
 const terrain = createTerrain(scene, { roadSampler })
 const landmarks = createCvLandmarks(scene, { roadSampler })
-const bike = createProceduralBike(scene)
+/** @type {Awaited<typeof bikeLoading>} */
+let bike
+try {
+  bike = await bikeLoading
+} catch (error) {
+  engineHandle.dispose()
+  hero.classList.add('ride-unavailable')
+  throw error
+}
+// The ride hints only make sense once the bike is there to ride.
+hero.classList.add('ride-ready')
 bike.root.position.z = startZ
 
 const controller = new BikeController(bike, { route, speed: topSpeed, acceleration: 9, deceleration: 14 })

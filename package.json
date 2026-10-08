@@ -2,10 +2,15 @@
   "name": "sofi-websites",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "blog"
   ],
   "scripts": {
     "dev:portfolio": "npm run dev --workspace=@sofi/portfolio",
-    "build:portfolio": "npm run build --workspace=@sofi/portfolio"
+    "build:portfolio": "npm run build --workspace=@sofi/portfolio",
+    "dev:blog": "npm run dev --workspace=@sofi/blog",
+    "check:blog": "npm run check --workspace=@sofi/blog",
+    "build:blog": "npm run build --workspace=@sofi/blog",
+    "preview:blog": "npm run preview --workspace=@sofi/blog"
   }
 }

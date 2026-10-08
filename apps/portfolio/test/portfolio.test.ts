@@ -1,14 +1,18 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { describe, it } from 'node:test'
 import { getExternalOrigin } from '../src/config'
 import { roadLandmarks } from '../src/content/portfolio'
 import { escapeHtml, renderPortfolio } from '../src/content/renderPortfolio'
 import { BikeController } from '../src/game/BikeController'
+import { VertexBuffer } from '@babylonjs/core/Buffers/buffer'
 import { NullEngine } from '@babylonjs/core/Engines/nullEngine'
+import { Vector3 } from '@babylonjs/core/Maths/math.vector'
 import { CreateBox } from '@babylonjs/core/Meshes/Builders/boxBuilder'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import { Scene } from '@babylonjs/core/scene'
 import { createRideEnding } from '../src/game/createRideEnding'
+import { loadBike, WHEELBASE } from '../src/game/loadBike'
 import { createRoadSampler, roadOffset } from '../src/game/createRoad'
 import { setupCamera } from '../src/game/setupCamera'
 import { scatterAlongRoad } from '../src/game/createVegetation'
@@ -275,6 +279,64 @@ describe('setupCamera', () => {
     handle.follow({ snap: true })
     scene.render()
     assert.ok(handle.camera.position.z > held.z + 30)
+    engine.dispose()
+  })
+})
+
+describe('loadBike', () => {
+  const load = async () => {
+    const engine = new NullEngine()
+    const scene = new Scene(engine)
+    const model = new Uint8Array(readFileSync(new URL('../src/assets/models/moto.glb', import.meta.url)))
+    const bike = await loadBike(scene, model)
+    bike.root.computeWorldMatrix(true)
+    return { engine, scene, bike }
+  }
+
+  it('faces +Z on its tyres, centred between the axles at the ride wheelbase', async () => {
+    const { engine, bike } = await load()
+    const [front, rear] = bike.wheels.map((wheel) => wheel.getAbsolutePosition())
+    assert.ok(front.z > 0 && rear.z < 0)
+    assert.ok(Math.abs(front.z - rear.z - WHEELBASE) < 1e-6)
+    assert.ok(Math.abs(front.x) < 1e-6 && Math.abs(rear.x) < 1e-6 && Math.abs(front.z + rear.z) < 1e-6)
+    const lowestPoint = (wheel: (typeof bike.wheels)[number]) =>
+      Math.min(
+        ...wheel.getChildMeshes(false).flatMap((mesh) => {
+          const positions = mesh.getVerticesData(VertexBuffer.PositionKind) ?? []
+          return Array.from({ length: positions.length / 3 }, (_, index) =>
+            Vector3.TransformCoordinatesFromFloatsToRef(positions[index * 3], positions[index * 3 + 1], positions[index * 3 + 2], mesh.getWorldMatrix(), new Vector3()).y,
+          )
+        }),
+      )
+    const lowest = bike.wheels.map(lowestPoint)
+    // The model sits a few millimetres off level: the lower tyre is on the road.
+    assert.ok(Math.abs(Math.min(...lowest)) < 1e-3, 'a tyre touches the ground')
+    assert.ok(lowest.every((y) => y >= -1e-3 && y < 0.01), 'both tyres are on the ground')
+    for (const wheel of bike.wheels) {
+      const { min, max } = wheel.getHierarchyBoundingVectors(true)
+      assert.ok(max.x - min.x < bike.wheelRadius, 'axle runs across the bike')
+    }
+    engine.dispose()
+  })
+
+  it('spins each wheel about its own axle', async () => {
+    const { engine, bike } = await load()
+    for (const wheel of bike.wheels) {
+      wheel.rotation.x = 1.3
+      const { min, max } = wheel.getHierarchyBoundingVectors(true)
+      assert.ok(Vector3Distance(min.add(max).scale(0.5), wheel.getAbsolutePosition()) < 0.02)
+    }
+    engine.dispose()
+  })
+
+  it('brings only the bike and rider into the scene, and takes them away again', async () => {
+    const { engine, scene, bike } = await load()
+    assert.equal(scene.lights.length, 0)
+    assert.equal(scene.cameras.length, 0)
+    assert.ok(bike.meshes.some((mesh) => mesh.name.includes('rider')))
+    bike.root.dispose()
+    assert.equal(scene.meshes.length, 0)
+    assert.equal(scene.materials.length, 0)
     engine.dispose()
   })
 })
