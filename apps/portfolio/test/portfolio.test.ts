@@ -329,6 +329,36 @@ describe('loadBike', () => {
     engine.dispose()
   })
 
+  it('stirs the hair at rest and lifts it back towards horizontal at speed', async () => {
+    const { engine, bike } = await load()
+    const hair = bike.rider.meshes.find((mesh) => mesh.name.includes('hair')) as (typeof bike.rider.meshes)[number]
+    const positions = () => Float32Array.from(hair.getVerticesData(VertexBuffer.PositionKind) ?? [])
+    const rest = positions()
+    // Mean shift up and along Z, and the largest and smallest shift of any vertex.
+    const drift = (to: Float32Array) => {
+      let y = 0
+      let z = 0
+      const shifts: number[] = []
+      for (let index = 0; index < rest.length; index += 3) {
+        y += to[index + 1] - rest[index + 1]
+        z += to[index + 2] - rest[index + 2]
+        shifts.push(Math.hypot(to[index] - rest[index], to[index + 1] - rest[index + 1], to[index + 2] - rest[index + 2]))
+      }
+      return { y: y / shifts.length, z: z / shifts.length, max: Math.max(...shifts), min: Math.min(...shifts) }
+    }
+    bike.rider.update(0.3, 0)
+    const breeze = drift(positions())
+    assert.ok(breeze.max > 1e-3 && breeze.max < 0.03, 'a breeze stirs the hair at rest')
+    assert.ok(breeze.min < 1e-3, 'the roots stay under the helmet')
+    for (let frame = 0; frame < 120; frame += 1) bike.rider.update(1 / 60, 1)
+    const wind = drift(positions())
+    assert.ok(wind.y > 0.04, 'the hair lifts at speed')
+    assert.ok(wind.z < -0.04, 'the hair streams back at speed')
+    // A 0.4 m lock swung from hanging to a little above horizontal moves its tip about 0.6 m.
+    assert.ok(wind.max < 0.7, 'the locks swing on their roots')
+    engine.dispose()
+  })
+
   it('brings only the bike and rider into the scene, and takes them away again', async () => {
     const { engine, scene, bike } = await load()
     assert.equal(scene.lights.length, 0)

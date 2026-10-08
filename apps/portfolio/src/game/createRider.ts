@@ -25,6 +25,8 @@ export interface RiderOptions extends RiderFit {
 export interface Rider {
   root: TransformNode
   meshes: readonly Mesh[]
+  /** Blows the hair about in the wind of the bike's speed, from 0 to 1 of top speed. */
+  update: (seconds: number, speedRatio: number) => void
 }
 
 const UP = Vector3.Up()
@@ -40,6 +42,40 @@ const HAIR_TEXTURE_HEIGHT = 64
 const HAIR_DARK_BAND = 0.875
 /** How much of the hair texture's width wraps around one lock. */
 const HAIR_LOCK_SPAN = 0.2
+/** Hair flutter: a slow breeze at rest, a quick flap at top speed (cycles per second). */
+const HAIR_REST_FREQUENCY = 1.4
+const HAIR_TOP_FREQUENCY = 7.5
+/** How hard a lock's tip flutters off its line at rest and at top speed. */
+const HAIR_REST_FLUTTER = 0.07
+const HAIR_TOP_FLUTTER = 0.3
+/**
+ * At top speed each segment of a lock turns this far into the wind, from the
+ * root to the tip, so the whole lock lifts off towards horizontal.
+ */
+const HAIR_ROOT_STREAM = 0.7
+const HAIR_TIP_STREAM = 1
+/** The wind streams the hair back and this much up, keeping some of its spread. */
+const HAIR_WIND_LIFT = 0.3
+const HAIR_WIND_SPREAD = 0.5
+/** Waves this many radians behind from root to tip, so they run down each lock. */
+const HAIR_WAVE_LAG = 3
+/** How quickly the hair catches up with a change of speed, per second. */
+const HAIR_RESPONSE = 3
+
+interface HairLock {
+  /** Rest centreline, with the unit direction and length of each segment along it. */
+  path: Vector3[]
+  directions: Vector3[]
+  lengths: number[]
+  /** The lock's first vertex in the merged hair; there is a ring of vertices per path point. */
+  first: number
+  ringSize: number
+  phase: number
+  /** Sideways axis the lock flutters along. */
+  axis: Vector3
+  /** How far the lock gives to the wind, from 0 to 1. */
+  stiffness: number
+}
 
 /**
  * Where a two-bone limb from `from` to `to` bends, bulging towards `hint`. A
@@ -150,9 +186,14 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
     mesh.position.copyFrom(position)
     return add(mesh, partMaterial)
   }
+  // The locks in the order they are merged, to bend them in the wind.
+  const locks: HairLock[] = []
+  let hairVertices = 0
+  const swayRandom = random(57)
   // A lock of hair tapering from root to a point, wrapped in a slice of the
-  // hair texture that starts at `shade` across its width.
-  const lock = (path: Vector3[], radius: number, shade: number): Mesh => {
+  // hair texture that starts at `shade` across its width. It flutters along
+  // `axis` and gives to the wind as far as `stiffness` lets it.
+  const lock = (path: Vector3[], radius: number, shade: number, axis: Vector3, stiffness = 1): Mesh => {
     const last = path.length - 1
     const mesh = MeshBuilder.CreateTube(
       'part',
@@ -166,6 +207,21 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
     const uvs = mesh.getVerticesData(VertexBuffer.UVKind) ?? []
     for (let index = 0; index < uvs.length; index += 2) uvs[index] = shade + uvs[index] * HAIR_LOCK_SPAN
     mesh.setVerticesData(VertexBuffer.UVKind, uvs)
+    const directions = path.slice(1).map((point, index) => point.subtract(path[index]))
+    const lengths = directions.map((direction) => direction.length())
+    for (const direction of directions) direction.normalize()
+    const vertices = mesh.getTotalVertices()
+    locks.push({
+      path,
+      directions,
+      lengths,
+      first: hairVertices,
+      ringSize: vertices / path.length,
+      phase: swayRandom() * Math.PI * 2,
+      axis,
+      stiffness,
+    })
+    hairVertices += vertices
     return add(mesh, hair)
   }
   const v = (x: number, y: number, z: number) => new Vector3(x, y, z)
@@ -223,7 +279,8 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
           .addInPlace(across.scale(wave * t * Math.sin(t * Math.PI * 2.4 + phase))),
       )
     }
-    lock(path, radius, shade)
+    // The inner layer, sheltered by the outer locks, gives a little less to the wind.
+    lock(path, radius, shade, across, 0.5 + 0.5 * lift)
   }
   const shadeFor = (dark: boolean) => (dark ? HAIR_DARK_BAND : next() * (HAIR_DARK_BAND - HAIR_LOCK_SPAN))
   const LOCKS = 24
@@ -249,7 +306,8 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
       const t = step / 6
       path.push(onFace(x + 0.05 * t, 0.085 - 0.05 * t - 0.012 * index * t, 0.012))
     }
-    lock(path, 0.02, shadeFor(index === 2))
+    // The fringe lies on the brow, so it barely stirs.
+    lock(path, 0.02, shadeFor(index === 2), Vector3.Right(), 0.1)
   }
 
   for (const side of [-1, 1]) {
@@ -278,6 +336,7 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
   }
 
   const meshes: Mesh[] = []
+  let hairMesh: Mesh | undefined
   for (const [partMaterial, group] of parts) {
     const merged = Mesh.MergeMeshes(group, true, true) as Mesh
     merged.name = `${partMaterial.name}-parts`
@@ -285,6 +344,99 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
     merged.parent = root
     merged.isPickable = false
     meshes.push(merged)
+    if (partMaterial === hair) hairMesh = merged
+  }
+
+  // The hair is bent from its rest pose every frame: each lock's centreline
+  // turns into the wind segment by segment, and carries its rings of vertices
+  // and their normals round with it. Its tips stray past the merged bounds, so
+  // never cull it on them.
+  const hairParts = hairMesh as Mesh
+  const positions = Float32Array.from(hairParts.getVerticesData(VertexBuffer.PositionKind) ?? [])
+  const restNormals = Float32Array.from(hairParts.getVerticesData(VertexBuffer.NormalKind) ?? [])
+  const normals = Float32Array.from(restNormals)
+  // Each vertex from the centre of its ring.
+  const offsets = Float32Array.from(positions)
+  for (const { path, first, ringSize } of locks) {
+    for (let vertex = 0; vertex < path.length * ringSize; vertex += 1) {
+      const centre = path[Math.floor(vertex / ringSize)]
+      const index = (first + vertex) * 3
+      offsets[index] -= centre.x
+      offsets[index + 1] -= centre.y
+      offsets[index + 2] -= centre.z
+    }
+  }
+  hairParts.setVerticesData(VertexBuffer.PositionKind, positions, true)
+  hairParts.setVerticesData(VertexBuffer.NormalKind, normals, true)
+  hairParts.alwaysSelectAsActiveMesh = true
+
+  const longest = Math.max(...locks.map(({ path }) => path.length))
+  const bent = Array.from({ length: longest }, () => new Vector3())
+  const bentDirections = Array.from({ length: longest }, () => new Vector3())
+  const restTangent = new Vector3()
+  const tangent = new Vector3()
+  const toward = new Vector3()
+  const turned = new Vector3()
+  const turn = new Quaternion()
+  let qx = 0
+  let qy = 0
+  let qz = 0
+  let qw = 1
+  // Rotates the vector at `index` in `from` by the current ring's turn and
+  // writes it, moved by (x, y, z), to `to`. In plain numbers, as there are
+  // thousands of these a frame.
+  const rotate = (from: Float32Array, to: Float32Array, index: number, x: number, y: number, z: number) => {
+    const vx = from[index]
+    const vy = from[index + 1]
+    const vz = from[index + 2]
+    const tx = 2 * (qy * vz - qz * vy)
+    const ty = 2 * (qz * vx - qx * vz)
+    const tz = 2 * (qx * vy - qy * vx)
+    to[index] = x + vx + qw * tx + qy * tz - qz * ty
+    to[index + 1] = y + vy + qw * ty + qz * tx - qx * tz
+    to[index + 2] = z + vz + qw * tz + qx * ty - qy * tx
+  }
+  let wind = 0
+  let wave = 0
+  const update = (seconds: number, speedRatio: number) => {
+    wind += (Math.min(1, Math.max(0, speedRatio)) - wind) * (1 - Math.exp(-seconds * HAIR_RESPONSE))
+    // Advance the wave rather than scale the clock, so speeding up never jumps it.
+    wave += seconds * Math.PI * 2 * (HAIR_REST_FREQUENCY + (HAIR_TOP_FREQUENCY - HAIR_REST_FREQUENCY) * wind)
+    const flutter = HAIR_REST_FLUTTER + (HAIR_TOP_FLUTTER - HAIR_REST_FLUTTER) * wind
+    for (const { path, directions, lengths, first, ringSize, phase, axis, stiffness } of locks) {
+      const last = path.length - 1
+      bent[0].copyFrom(path[0])
+      for (let segment = 0; segment < last; segment += 1) {
+        const along = (segment + 1) / last
+        const rest = directions[segment]
+        // Wind from ahead streams the lock back (-Z) and lifts it, more so
+        // towards the tip, while a wave runs down it.
+        toward.set(rest.x * HAIR_WIND_SPREAD, HAIR_WIND_LIFT, -1).normalize()
+        const give = stiffness * wind * (HAIR_ROOT_STREAM + (HAIR_TIP_STREAM - HAIR_ROOT_STREAM) * along)
+        const wiggle = stiffness * along * flutter
+        const wavePhase = wave + phase - along * HAIR_WAVE_LAG
+        const side = Math.sin(wavePhase) * wiggle
+        const direction = Vector3.LerpToRef(rest, toward, give, bentDirections[segment])
+        direction.addInPlaceFromFloats(axis.x * side, 0.6 * wiggle * Math.sin(wavePhase * 1.3 + 1), axis.z * side).normalize()
+        bent[segment].addToRef(direction.scaleToRef(lengths[segment], turned), bent[segment + 1])
+      }
+      for (let ring = 0; ring <= last; ring += 1) {
+        // A ring turns as the centreline did through it, between the segments either side.
+        const before = Math.max(0, ring - 1)
+        const after = Math.min(last - 1, ring)
+        directions[before].addToRef(directions[after], restTangent).normalize()
+        bentDirections[before].addToRef(bentDirections[after], tangent).normalize()
+        Quaternion.FromUnitVectorsToRef(restTangent, tangent, turn)
+        const { x: centreX, y: centreY, z: centreZ } = bent[ring]
+        ;({ x: qx, y: qy, z: qz, w: qw } = turn)
+        for (let vertex = first + ring * ringSize, end = vertex + ringSize; vertex < end; vertex += 1) {
+          rotate(offsets, positions, vertex * 3, centreX, centreY, centreZ)
+          rotate(restNormals, normals, vertex * 3, 0, 0, 0)
+        }
+      }
+    }
+    hairParts.updateVerticesData(VertexBuffer.PositionKind, positions)
+    hairParts.updateVerticesData(VertexBuffer.NormalKind, normals)
   }
 
   root.onDisposeObservable.addOnce(() => {
@@ -292,5 +444,5 @@ export function createRider(scene: Scene, { name = 'rider', seat, grip, footrest
     hairTexture.dispose()
   })
 
-  return { root, meshes }
+  return { root, meshes, update }
 }

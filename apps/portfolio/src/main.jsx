@@ -197,6 +197,8 @@ const render = () => {
       break
   }
   alignBikeToRoad(seconds)
+  // The bike's own speed, so the hair still streams as it rides off alone.
+  bike.rider.update(seconds, controller.getSpeedRatio())
   card.update(bike.root.position.z)
   // Drives the CSS speed vignette; skip style writes for invisible changes.
   const speed = Math.round(viewerSpeed() * 50) / 50

@@ -9,7 +9,7 @@ import { StandardMaterial } from '@babylonjs/core/Materials/standardMaterial'
 import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh'
 import { TransformNode } from '@babylonjs/core/Meshes/transformNode'
 import type { Scene } from '@babylonjs/core/scene'
-import { createRider, type RiderFit } from './createRider'
+import { createRider, type Rider, type RiderFit } from './createRider'
 
 export interface BikeAsset {
   /** Follows the road: position, heading and slope. */
@@ -18,6 +18,8 @@ export interface BikeAsset {
   body: TransformNode
   wheels: readonly TransformNode[]
   wheelRadius: number
+  /** Seated on `body`; its hair needs updating every frame. */
+  rider: Rider
   /** Everything that should cast the bike's shadow. */
   meshes: readonly AbstractMesh[]
 }
@@ -171,6 +173,7 @@ export async function loadBike(scene: Scene, source: string | ArrayBufferView, {
     body,
     wheels,
     wheelRadius,
+    rider,
     meshes: [...meshes, ...rider.meshes],
   }
 }
